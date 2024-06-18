@@ -7,5 +7,5 @@ import java.util.Date;
 import java.util.List;
 
 public interface DailyUsageRepository extends MongoRepository<DailyUsage, String> {
-    public List<DailyUsage> findByMdnAndUserIdAndUsageDateBetweenOrderByUsageDateAsc(String mdn, String userId, Date startDate, Date endDate);
+    List<DailyUsage> findByMdnAndUserIdAndUsageDateBetweenOrderByUsageDateDesc(String mdn, String userId, Date startDate, Date endDate);
 }

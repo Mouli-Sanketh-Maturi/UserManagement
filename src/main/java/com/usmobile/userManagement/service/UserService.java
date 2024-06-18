@@ -2,6 +2,7 @@ package com.usmobile.userManagement.service;
 
 import com.usmobile.userManagement.entity.User;
 import com.usmobile.userManagement.exception.UserAlreadyExistsException;
+import com.usmobile.userManagement.exception.UserNotFoundException;
 import com.usmobile.userManagement.model.CreateUserRequest;
 import com.usmobile.userManagement.model.UpdateUserRequest;
 import com.usmobile.userManagement.model.UserResponse;
@@ -39,7 +40,7 @@ public class UserService {
 
     public UserResponse updateUser(UpdateUserRequest user) {
         User existingUser = userRepository.findById(user.userId())
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new UserNotFoundException("User not found"));
         existingUser.setFirstName(user.firstName());
         existingUser.setLastName(user.lastName());
         existingUser.setEmail(user.email());

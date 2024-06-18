@@ -2,7 +2,6 @@ package com.usmobile.userManagement.controller;
 
 import com.usmobile.userManagement.model.CycleInfo;
 import com.usmobile.userManagement.model.DailyUsageReport;
-import com.usmobile.userManagement.model.LineInfo;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -20,6 +19,12 @@ import java.util.List;
 
 public interface CycleControllerAPI {
 
+    /**
+     * Get daily usage report
+     * @param userId - subscriber user id
+     * @param mdn - subscriber mdn
+     * @return list of daily usage reports
+     */
     @GetMapping(path = "/current-cycle-report", produces = {MediaType.APPLICATION_JSON_VALUE,
             MediaType.APPLICATION_PROBLEM_JSON_VALUE})
     @ApiResponses(value = {
@@ -33,6 +38,12 @@ public interface CycleControllerAPI {
     ResponseEntity<List<DailyUsageReport>> getDailyUsageReport(@NotBlank @RequestParam String userId,
                                                                       @NotBlank @RequestParam String mdn);
 
+    /**
+     * Get cycle history
+     * @param userId - subscriber user id
+     * @param mdn - subscriber mdn
+     * @return list of cycle history
+     */
     @GetMapping(path = "/cycle-history", produces = {MediaType.APPLICATION_JSON_VALUE,
             MediaType.APPLICATION_PROBLEM_JSON_VALUE})
     @ApiResponses(value = {
@@ -45,4 +56,5 @@ public interface CycleControllerAPI {
     })
     ResponseEntity<List<CycleInfo>> getCycleHistory(@NotBlank @RequestParam String userId,
                                                     @NotBlank @RequestParam String mdn);
+
 }
