@@ -47,6 +47,8 @@ public interface UserControllerAPI {
                     content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation =
                     UserResponse.class))),
             @ApiResponse(responseCode = "400", description = "Invalid input", content = @Content(mediaType =
+                    MediaType.APPLICATION_PROBLEM_JSON_VALUE, schema = @Schema(implementation = ProblemDetail.class))),
+            @ApiResponse(responseCode = "404", description = "User not found", content = @Content(mediaType =
                     MediaType.APPLICATION_PROBLEM_JSON_VALUE, schema = @Schema(implementation = ProblemDetail.class)))
     })
     ResponseEntity<UserResponse> updateUser(@Valid @RequestBody UpdateUserRequest user);
