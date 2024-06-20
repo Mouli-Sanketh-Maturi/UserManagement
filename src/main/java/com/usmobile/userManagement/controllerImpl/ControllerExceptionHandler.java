@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.BindException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -31,7 +32,7 @@ public class ControllerExceptionHandler {
      * @param ex the exception
      * @return BAD_REQUEST problem detail
      */
-    @ExceptionHandler({MethodArgumentNotValidException.class, ConstraintViolationException.class})
+    @ExceptionHandler(MethodArgumentNotValidException.class)
     public ProblemDetail handleValidationExceptions(BindException ex) {
         logger.error("Validation failed", ex);
         ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, "Validation failed");
@@ -43,6 +44,19 @@ public class ControllerExceptionHandler {
             errors.put(fieldName, errorMessage);
         });
         problemDetail.setProperties(errors);
+        return problemDetail;
+    }
+
+    /**
+     * Handle Constraint Violation Exception
+     *
+     * @param ex the exception
+     * @return BAD_REQUEST problem detail
+     */
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ProblemDetail handleConstraintViolationException(ConstraintViolationException ex) {
+        logger.error("Constraint violation", ex);
+        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, ex.getMessage());
         return problemDetail;
     }
 
@@ -99,16 +113,42 @@ public class ControllerExceptionHandler {
     }
 
     /**
+     * Handle Illegal Argument Exception
+     *
+     * @param ex the exception
+     * @return BAD_REQUEST problem detail
+     */
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ProblemDetail handleIllegalArgumentException(IllegalArgumentException ex) {
+        logger.error("Illegal argument", ex);
+        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, ex.getMessage());
+        return problemDetail;
+    }
+
+    /**
+     * Handle Http Message Not Readable Exception
+     *
+     * @param ex the exception
+     * @return BAD_REQUEST problem detail
+     */
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ProblemDetail handleHttpMessageNotReadableException(HttpMessageNotReadableException ex) {
+        logger.error("Http message not readable", ex);
+        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, ex.getMessage());
+        return problemDetail;
+    }
+
+    /**
      * Handle Any Exception
      *
      * @param ex the exception
      * @return INTERNAL_SERVER_ERROR problem detail
      */
-    @ExceptionHandler(Exception.class)
+    @ExceptionHandler(RuntimeException.class)
     public ProblemDetail handleAnyException(Exception ex) {
-        logger.error("Internal server error", ex);
+        logger.error("Internal Server Error", ex);
         ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.INTERNAL_SERVER_ERROR,
-                "Internal server error, please try again later");
+                "Internal Server Error, please try again later");
         return problemDetail;
     }
 

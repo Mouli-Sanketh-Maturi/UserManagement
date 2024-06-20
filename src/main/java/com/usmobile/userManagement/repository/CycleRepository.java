@@ -10,7 +10,7 @@ import java.util.Optional;
 
 public interface CycleRepository extends MongoRepository<Cycle, String> {
     @Query("{ 'userId' : ?0, 'mdn' : ?1, 'startDate' : { $lte : ?2 }, 'endDate' : { $gte : ?2 } }")
-    Optional<Cycle> findCurrentCycleByUserIdAndMdn(String userId, String mdn, Date currentDate);
+    Optional<Cycle> findCurrentCycleByUserIdAndMdn(String userId, String mdn, Long currentDate);
 
     List<Cycle> findByUserIdAndMdnOrderByStartDateDesc(String userId, String mdn);
 }

@@ -31,7 +31,7 @@ public class UserService {
     public UserResponse createUser(CreateUserRequest user) {
         if (userRepository.existsByEmail(user.email())) {
             logger.error("User with email already exists");
-            throw new UserAlreadyExistsException("User with email already exists");
+            throw new UserAlreadyExistsException(String.format("User with email %s already exists", user.email()));
         }
         User savedUser = userRepository.save(new User(user.firstName(), user.lastName(), user.email(),
                 passwordEncoder.encode(user.password())));
@@ -40,7 +40,11 @@ public class UserService {
 
     public UserResponse updateUser(UpdateUserRequest user) {
         User existingUser = userRepository.findById(user.userId())
-                .orElseThrow(() -> new UserNotFoundException("User not found"));
+                .orElseThrow(() -> new UserNotFoundException(String.format("User with id %s not found", user.userId())));
+        if (!existingUser.getEmail().equals(user.email()) && userRepository.existsByEmail(user.email())) {
+            logger.error("User with email already exists");
+            throw new UserAlreadyExistsException(String.format("User with email %s already exists", user.email()));
+        }
         existingUser.setFirstName(user.firstName());
         existingUser.setLastName(user.lastName());
         existingUser.setEmail(user.email());

@@ -5,17 +5,19 @@ import com.usmobile.userManagement.entity.DailyUsage;
 import com.usmobile.userManagement.exception.NoCyclesFoundException;
 import com.usmobile.userManagement.model.CycleInfo;
 import com.usmobile.userManagement.model.DailyUsageReport;
-import com.usmobile.userManagement.model.LineInfo;
 import com.usmobile.userManagement.repository.CycleRepository;
 import com.usmobile.userManagement.repository.DailyUsageRepository;
-import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.annotation.Validated;
 
 import java.util.Date;
 import java.util.List;
 
 @Service
+@Validated
 public class CycleService {
 
     CycleRepository cycleRepository;
@@ -30,37 +32,43 @@ public class CycleService {
 
     /**
      * Get daily usage report
-     * @param lineInfo Line info of the subscriber
+     * @param userId userId of the subscriber
+     * @param mdn mdn of the subscriber
      * @return List of daily usage report
      */
-    public List<DailyUsageReport> getDailyUsageReport(@Valid LineInfo lineInfo) {
+    @Validated
+    public List<DailyUsageReport> getDailyUsageReport(@NotBlank String userId, @NotBlank String mdn) {
 
-        Cycle cycle = cycleRepository.findCurrentCycleByUserIdAndMdn(lineInfo.userId(), lineInfo.mdn(), new Date())
-                .orElseThrow(() -> new NoCyclesFoundException("No current cycle found for this user and mdn."));
+        Cycle cycle = cycleRepository.findCurrentCycleByUserIdAndMdn(userId, mdn, new Date().getTime())
+                .orElseThrow(() -> new NoCyclesFoundException(
+                        String.format("No current cycle found for this user: %s and mdn: %s.", userId, mdn)));
 
+        Sort sort = Sort.by(Sort.Direction.DESC, "usageDate");
         List<DailyUsage> dailyUsages = dailyUsageRepository
-                .findByMdnAndUserIdAndUsageDateBetweenOrderByUsageDateDesc(lineInfo.mdn(), lineInfo.userId(),
-                        cycle.getStartDate(), cycle.getEndDate());
+                .findByUserIdAndMdnAndUsageDateBetweenOrderByUsageDateDesc(userId, mdn, cycle.getStartDate(),
+                        cycle.getEndDate(), sort);
 
-        return dailyUsages.stream().map(du -> new DailyUsageReport(du.getUsageDate(), du.getUsedInMb())).toList();
+        return dailyUsages.stream().map(du -> new DailyUsageReport(new Date(du.getUsageDate()), du.getUsedInMb())).toList();
 
     }
 
     /**
      * Get cycle history
-     * @param lineInfo Line info of the subscriber
+     * @param userId userId of the subscriber
+     * @param mdn mdn of the subscriber
      * @return List of cycle history
      */
 
-    public List<CycleInfo> getCycleHistory(@Valid LineInfo lineInfo) {
+    @Validated
+    public List<CycleInfo> getCycleHistory(@NotBlank String userId, @NotBlank String mdn) {
 
-        List<Cycle> cycles = cycleRepository.findByUserIdAndMdnOrderByStartDateDesc(lineInfo.userId(), lineInfo.mdn());
+        List<Cycle> cycles = cycleRepository.findByUserIdAndMdnOrderByStartDateDesc(userId, mdn);
 
         if (cycles.isEmpty()) {
-            throw new NoCyclesFoundException("No cycles found for this user and mdn.");
+            throw new NoCyclesFoundException(String.format("No cycles found for this user: %s and mdn: %s.", userId, mdn));
         }
 
-        return cycles.stream().map(c -> new CycleInfo(c.getId(), c.getStartDate(), c.getEndDate())).toList();
+        return cycles.stream().map(c -> new CycleInfo(c.getId(), new Date(c.getStartDate()), new Date(c.getEndDate()))).toList();
 
     }
 

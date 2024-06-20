@@ -11,12 +11,14 @@ import jakarta.validation.constraints.NotBlank;
 import org.springframework.http.MediaType;
 import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 
 import java.util.List;
 
+@Validated
 public interface CycleControllerAPI {
 
     /**
@@ -35,7 +37,7 @@ public interface CycleControllerAPI {
                     MediaType.APPLICATION_PROBLEM_JSON_VALUE, schema = @Schema(implementation =
                     ProblemDetail.class)))
     })
-    ResponseEntity<List<DailyUsageReport>> getDailyUsageReport(@NotBlank @RequestParam String userId,
+    ResponseEntity<List<DailyUsageReport>> getCurrentCycleReport(@NotBlank @RequestParam String userId,
                                                                       @NotBlank @RequestParam String mdn);
 
     /**
@@ -54,7 +56,6 @@ public interface CycleControllerAPI {
                     MediaType.APPLICATION_PROBLEM_JSON_VALUE, schema = @Schema(implementation =
                     ProblemDetail.class)))
     })
-    ResponseEntity<List<CycleInfo>> getCycleHistory(@NotBlank @RequestParam String userId,
-                                                    @NotBlank @RequestParam String mdn);
+    ResponseEntity<List<CycleInfo>> getCycleHistory(@NotBlank @RequestParam String userId, @NotBlank @RequestParam String mdn);
 
 }

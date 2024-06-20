@@ -8,6 +8,10 @@ import org.springframework.stereotype.Component;
 @Component
 public class PasswordUtil {
 
+    /**
+     * Password encoder
+     * @return Returns a BCryptPasswordEncoder object to encode passwords using BCrypt across the application
+     */
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();

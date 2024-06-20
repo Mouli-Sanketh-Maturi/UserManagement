@@ -20,7 +20,7 @@ public class DailyUsage {
     private String id;
     private String mdn;
     private String userId;
-    private Date usageDate;
+    private Long usageDate;
     private int usedInMb;
 
 }

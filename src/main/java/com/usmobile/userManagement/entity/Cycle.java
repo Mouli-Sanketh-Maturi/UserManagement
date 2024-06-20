@@ -19,8 +19,8 @@ public class Cycle {
     @Id
     private String id;
     private String mdn;
-    private Date startDate;
-    private Date endDate;
+    private Long startDate;
+    private Long endDate;
     private String userId;
 
 }

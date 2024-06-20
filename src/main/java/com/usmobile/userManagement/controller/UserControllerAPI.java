@@ -11,10 +11,12 @@ import jakarta.validation.Valid;
 import org.springframework.http.MediaType;
 import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
+@Validated
 public interface UserControllerAPI {
 
     /**
@@ -31,7 +33,7 @@ public interface UserControllerAPI {
             @ApiResponse(responseCode = "400", description = "Invalid input", content = @Content(mediaType =
                     MediaType.APPLICATION_PROBLEM_JSON_VALUE, schema = @Schema(implementation = ProblemDetail.class)))
     })
-    ResponseEntity<UserResponse> createUser(@RequestBody @Valid CreateUserRequest user);
+    ResponseEntity<UserResponse> createUser(@Valid @RequestBody CreateUserRequest user);
 
     /**
      * Update user with given details
@@ -47,6 +49,6 @@ public interface UserControllerAPI {
             @ApiResponse(responseCode = "400", description = "Invalid input", content = @Content(mediaType =
                     MediaType.APPLICATION_PROBLEM_JSON_VALUE, schema = @Schema(implementation = ProblemDetail.class)))
     })
-    ResponseEntity<UserResponse> updateUser(@RequestBody @Valid UpdateUserRequest user);
+    ResponseEntity<UserResponse> updateUser(@Valid @RequestBody UpdateUserRequest user);
 
 }

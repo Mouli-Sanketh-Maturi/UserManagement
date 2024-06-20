@@ -12,9 +12,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-@ToString
 @RestController
-@RequestMapping
+@RequestMapping(path = "/api/v1")
 public class UserController implements UserControllerAPI {
 
     UserService userService;
