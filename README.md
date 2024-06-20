@@ -106,6 +106,8 @@ For detailed information on the design choices, database schema, and scaling con
 The testing approach ensures that the application behaves as expected in an environment that closely resembles production.
 JUnit is used as the testing framework and MongoDB Test Containers to provide a real MongoDB instance for each test.
 
+The Unit tests are in their respective folders organized in the standard Junit way. The Integration or Data tests are part of the integration package in tests folder.
+
 Please ensure docker is up and running on your machine before running the tests, else the Testcontainers will fail to start the MongoDB instance, and the tests will fail.
 
 ## Running Tests
