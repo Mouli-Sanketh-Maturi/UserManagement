@@ -222,7 +222,7 @@ public class UserControllerTest {
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.title").value("Bad Request"))
-                .andExpect(jsonPath("$.userId").value("userId is required"));
+                .andExpect(jsonPath("$.id").value("user id is required"));
     }
 
     @Test

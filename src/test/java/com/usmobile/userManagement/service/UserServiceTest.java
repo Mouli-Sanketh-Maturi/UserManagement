@@ -147,7 +147,7 @@ public class UserServiceTest {
 
         // Perform the test action
         assertThrows(UserNotFoundException.class, () -> userService.updateUser(request))
-                .getMessage().equals(String.format("User with id %s not found", request.userId()));
+                .getMessage().equals(String.format("User with id %s not found", request.id()));
     }
 
 

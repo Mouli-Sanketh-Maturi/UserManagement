@@ -39,8 +39,8 @@ public class UserService {
     }
 
     public UserResponse updateUser(UpdateUserRequest user) {
-        User existingUser = userRepository.findById(user.userId())
-                .orElseThrow(() -> new UserNotFoundException(String.format("User with id %s not found", user.userId())));
+        User existingUser = userRepository.findById(user.id())
+                .orElseThrow(() -> new UserNotFoundException(String.format("User with id %s not found", user.id())));
         if (!existingUser.getEmail().equals(user.email()) && userRepository.existsByEmail(user.email())) {
             logger.error("User with email already exists");
             throw new UserAlreadyExistsException(String.format("User with email %s already exists", user.email()));
