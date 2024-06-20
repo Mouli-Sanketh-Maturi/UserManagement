@@ -13,6 +13,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+/**
+ * Service class for user management
+ */
 @Service
 public class UserService {
 
@@ -28,7 +31,14 @@ public class UserService {
         this.passwordEncoder = passwordEncoder;
     }
 
+    /**
+     * Create a new user
+     *
+     * @param user user details
+     * @return saved user details including generated id and encoded password
+     */
     public UserResponse createUser(CreateUserRequest user) {
+        // If user with email already exists, throw UserAlreadyExistsException, and return 400 Bad Request
         if (userRepository.existsByEmail(user.email())) {
             logger.error("User with email already exists");
             throw new UserAlreadyExistsException(String.format("User with email %s already exists", user.email()));
@@ -38,9 +48,18 @@ public class UserService {
         return new UserResponse(savedUser.getId(), savedUser.getFirstName(), savedUser.getLastName(), savedUser.getEmail());
     }
 
+    /**
+     * Update an existing user
+     *
+     * @param user user details
+     * @return updated user details
+     */
     public UserResponse updateUser(UpdateUserRequest user) {
+        // If user with id not found, throw UserNotFoundException, and return 404 Not Found
         User existingUser = userRepository.findById(user.id())
                 .orElseThrow(() -> new UserNotFoundException(String.format("User with id %s not found", user.id())));
+
+        // If user tries to update the email which another user already has, throw UserAlreadyExistsException, and return 400 Bad Request
         if (!existingUser.getEmail().equals(user.email()) && userRepository.existsByEmail(user.email())) {
             logger.error("User with email already exists");
             throw new UserAlreadyExistsException(String.format("User with email %s already exists", user.email()));

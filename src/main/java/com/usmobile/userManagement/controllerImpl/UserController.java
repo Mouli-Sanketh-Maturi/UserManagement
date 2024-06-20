@@ -6,7 +6,6 @@ import com.usmobile.userManagement.model.UpdateUserRequest;
 import com.usmobile.userManagement.model.UserResponse;
 import com.usmobile.userManagement.service.UserService;
 import jakarta.validation.Valid;
-import lombok.ToString;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

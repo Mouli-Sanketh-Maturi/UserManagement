@@ -15,8 +15,12 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-
 import java.util.List;
+
+/**
+ * Cycle Controller API
+ * This interface defines the APIs for cycle controller
+ */
 
 @Validated
 public interface CycleControllerAPI {
@@ -25,7 +29,7 @@ public interface CycleControllerAPI {
      * Get daily usage report
      * @param userId - subscriber user id
      * @param mdn - subscriber mdn
-     * @return list of daily usage reports
+     * @return list of current cycle daily usage reports
      */
     @GetMapping(path = "/current-cycle-report", produces = {MediaType.APPLICATION_JSON_VALUE,
             MediaType.APPLICATION_PROBLEM_JSON_VALUE})
@@ -45,7 +49,7 @@ public interface CycleControllerAPI {
      * Get cycle history
      * @param userId - subscriber user id
      * @param mdn - subscriber mdn
-     * @return list of cycle history
+     * @return list of cycle history for the user id and mdn
      */
     @GetMapping(path = "/cycle-history", produces = {MediaType.APPLICATION_JSON_VALUE,
             MediaType.APPLICATION_PROBLEM_JSON_VALUE})

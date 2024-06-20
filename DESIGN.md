@@ -25,6 +25,7 @@ This document outlines the design decisions for the Spring Boot Java REST server
 - **Cycle Collection**: Stores billing cycles with fields for user ID, start and end dates, and related metadata.
 - **User Collection**: Maintains user profile information, including authentication details.
 - **Daily Usage Collection**: Records data usage on a daily basis, updated every 15 minutes to reflect real-time usage stats.
+- **Date Format**: Dates are stored in millisecond epoch format to ensure consistency across different time zones, daylight saving time changes, leap years, and easy date arithmetic.
 
 ### Scaling Considerations
 

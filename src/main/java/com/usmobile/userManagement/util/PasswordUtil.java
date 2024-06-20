@@ -10,7 +10,7 @@ public class PasswordUtil {
 
     /**
      * Password encoder
-     * @return Returns a BCryptPasswordEncoder object to encode passwords using BCrypt across the application
+     * @return Returns a BCryptPasswordEncoder object to hash and salt passwords using BCrypt across the application
      */
     @Bean
     public PasswordEncoder passwordEncoder() {

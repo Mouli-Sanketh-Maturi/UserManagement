@@ -1,19 +1,20 @@
 package com.usmobile.userManagement.controllerImpl;
 
 import com.usmobile.userManagement.controller.CycleControllerAPI;
-import com.usmobile.userManagement.model.LineInfo;
 import com.usmobile.userManagement.service.CycleService;
 import com.usmobile.userManagement.model.CycleInfo;
 import com.usmobile.userManagement.model.DailyUsageReport;
-import jakarta.validation.constraints.NotBlank;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
+/**
+ * Cycle Controller
+ * Implementation of CycleControllerAPI
+ */
 @RestController
 @RequestMapping(path = "/api/v1")
 public class CycleController implements CycleControllerAPI {

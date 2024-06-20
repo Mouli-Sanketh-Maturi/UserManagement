@@ -16,6 +16,10 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
+/**
+ * User controller API
+ * This interface defines the API for user management
+ */
 @Validated
 public interface UserControllerAPI {
 
