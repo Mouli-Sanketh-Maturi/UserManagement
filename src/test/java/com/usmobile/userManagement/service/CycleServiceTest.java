@@ -8,7 +8,6 @@ import com.usmobile.userManagement.model.DailyUsageReport;
 import com.usmobile.userManagement.repository.CycleRepository;
 import com.usmobile.userManagement.repository.DailyUsageRepository;
 import org.assertj.core.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -27,6 +26,9 @@ import java.util.Optional;
 
 @ExtendWith(SpringExtension.class)
 public class CycleServiceTest {
+    
+    private static final String USER_ID = "6671d6cdd518422008b3d9fb";
+    private static final String MDN = "1234567890";
 
     @Mock
     private CycleRepository cycleRepository;
@@ -37,9 +39,6 @@ public class CycleServiceTest {
     @InjectMocks
     private CycleService cycleService;
 
-    private String userId;
-    private String mdn;
-
     @TestConfiguration
     static class TestContextConfiguration {
         @Bean
@@ -48,19 +47,13 @@ public class CycleServiceTest {
         }
     }
 
-    @BeforeEach
-    public void setUp() {
-        userId = "6671d6cdd518422008b3d9fb";
-        mdn = "1234567890";
-    }
-
     @Test
     void getDailyUsageReport_WhenNoCyclesFound() {
         Mockito.when(cycleRepository.findCurrentCycleByUserIdAndMdn(Mockito.any(), Mockito.any(), Mockito.any()))
                 .thenReturn(Optional.empty());
-        Assertions.assertThatThrownBy(() -> cycleService.getDailyUsageReport(userId, mdn))
+        Assertions.assertThatThrownBy(() -> cycleService.getDailyUsageReport(USER_ID, MDN))
                 .isInstanceOf(NoCyclesFoundException.class)
-                .hasMessage("No current cycle found for this user: " + userId + " and mdn: "+ mdn + ".");
+                .hasMessage("No current cycle found for this user: " + USER_ID + " and mdn: "+ MDN + ".");
     }
 
     @Test
@@ -70,12 +63,12 @@ public class CycleServiceTest {
         cycle.setEndDate(Instant.now().plus(20, ChronoUnit.DAYS).toEpochMilli());
         Mockito.when(cycleRepository.findCurrentCycleByUserIdAndMdn(Mockito.any(), Mockito.any(), Mockito.any()))
                 .thenReturn(Optional.of(cycle));
-        List<DailyUsage> dailyUsages = List.of(new DailyUsage(userId,mdn,userId,Instant.now().minus(1, ChronoUnit.DAYS).toEpochMilli(), 100),
-                new DailyUsage(userId,mdn,userId,Instant.now().toEpochMilli(), 128));
+        List<DailyUsage> dailyUsages = List.of(new DailyUsage(USER_ID,MDN,USER_ID,Instant.now().minus(1, ChronoUnit.DAYS).toEpochMilli(), 100),
+                new DailyUsage(USER_ID,MDN,USER_ID,Instant.now().toEpochMilli(), 128));
         Mockito.when(dailyUsageRepository
                         .findByUserIdAndMdnAndUsageDateBetweenOrderByUsageDateDesc(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
                 .thenReturn(dailyUsages);
-        List<DailyUsageReport> dailyUsageReports = cycleService.getDailyUsageReport(userId, mdn);
+        List<DailyUsageReport> dailyUsageReports = cycleService.getDailyUsageReport(USER_ID, MDN);
         Assertions.assertThat(dailyUsageReports).isNotEmpty();
         Assertions.assertThat(dailyUsageReports).hasSize(2);
         Assertions.assertThat(dailyUsageReports.get(0).dailyUsage()).isEqualTo(100);
@@ -92,7 +85,7 @@ public class CycleServiceTest {
         Mockito.when(dailyUsageRepository
                         .findByUserIdAndMdnAndUsageDateBetweenOrderByUsageDateDesc(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(),Mockito.any() ))
                 .thenReturn(List.of());
-        List<DailyUsageReport> dailyUsageReports = cycleService.getDailyUsageReport(userId, mdn);
+        List<DailyUsageReport> dailyUsageReports = cycleService.getDailyUsageReport(USER_ID, MDN);
         Assertions.assertThat(dailyUsageReports).isEmpty();
     }
 
@@ -100,9 +93,9 @@ public class CycleServiceTest {
     void getCycleHistory_WhenNoCyclesFound() {
         Mockito.when(cycleRepository.findByUserIdAndMdnOrderByStartDateDesc(Mockito.any(), Mockito.any()))
                 .thenReturn(List.of());
-        Assertions.assertThatThrownBy(() -> cycleService.getCycleHistory(userId, mdn))
+        Assertions.assertThatThrownBy(() -> cycleService.getCycleHistory(USER_ID, MDN))
                 .isInstanceOf(NoCyclesFoundException.class)
-                .hasMessage(String.format("No cycles found for this user: %s and mdn: %s.", userId, mdn));
+                .hasMessage(String.format("No cycles found for this user: %s and mdn: %s.", USER_ID, MDN));
     }
 
     @Test
@@ -113,19 +106,19 @@ public class CycleServiceTest {
         cycle1.setStartDate(cycle1StartDate);
         cycle1.setEndDate(cycle1EndDate);
         cycle1.setId("1");
-        cycle1.setUserId(userId);
-        cycle1.setMdn(mdn);
+        cycle1.setUserId(USER_ID);
+        cycle1.setMdn(MDN);
         Cycle cycle2 = new Cycle();
         Long cycle2StartDate = Instant.now().minus(40, ChronoUnit.DAYS).toEpochMilli();
         Long cycle2EndDate = Instant.now().minus(10, ChronoUnit.DAYS).toEpochMilli();
         cycle2.setStartDate(cycle2StartDate);
         cycle2.setEndDate(cycle2EndDate);
         cycle2.setId("2");
-        cycle2.setUserId(userId);
-        cycle2.setMdn(mdn);
+        cycle2.setUserId(USER_ID);
+        cycle2.setMdn(MDN);
         Mockito.when(cycleRepository.findByUserIdAndMdnOrderByStartDateDesc(Mockito.any(), Mockito.any()))
                 .thenReturn(List.of(cycle1, cycle2));
-        List<CycleInfo> cycleInfos = cycleService.getCycleHistory(userId, mdn);
+        List<CycleInfo> cycleInfos = cycleService.getCycleHistory(USER_ID, MDN);
         Assertions.assertThat(cycleInfos).isNotEmpty();
         Assertions.assertThat(cycleInfos).hasSize(2);
         Assertions.assertThat(cycleInfos.get(0).cycleId()).isEqualTo("1");

@@ -12,6 +12,8 @@ import org.testcontainers.containers.MongoDBContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -19,6 +21,9 @@ import java.util.Optional;
 @DataMongoTest
 @Testcontainers
 public class CycleRepositoryTest {
+
+    private static final String USER_ID = "6671d6cdd518422008b3d9fb";
+    private static final String MDN = "1234567890";
 
     @Autowired
     CycleRepository cycleRepository;
@@ -39,23 +44,23 @@ public class CycleRepositoryTest {
     @Test
     void testFindCurrentCycleByUserIdAndMdn_Found() {
         // Start date is yesterday and end date is tomorrow
-        Cycle cycle = new Cycle("6671d6f6d518422008b3d9fc", "1234567890", System.currentTimeMillis() - 86400000,
-                System.currentTimeMillis() + 86400000, "6671d6cdd518422008b3d9fb");
+        Cycle cycle = new Cycle("6671d6f6d518422008b3d9fc", MDN, Instant.now().minus(1, ChronoUnit.DAYS).toEpochMilli(),
+                Instant.now().plus(1, ChronoUnit.DAYS).toEpochMilli(), USER_ID);
         cycleRepository.save(cycle);
 
-        Optional<Cycle> result = cycleRepository.findCurrentCycleByUserIdAndMdn("6671d6cdd518422008b3d9fb",
-                "1234567890", System.currentTimeMillis());
+        Optional<Cycle> result = cycleRepository.findCurrentCycleByUserIdAndMdn(USER_ID,
+                MDN, System.currentTimeMillis());
 
         Assertions.assertTrue(result.isPresent());
-        Assertions.assertEquals(result.get().getUserId(),"6671d6cdd518422008b3d9fb");
-        Assertions.assertEquals(result.get().getMdn(),"1234567890");
+        Assertions.assertEquals(result.get().getUserId(),USER_ID);
+        Assertions.assertEquals(result.get().getMdn(),MDN);
     }
 
     @Test
     void testFindCurrentCycleByUserIdAndMdn_NoCyclesInDb() {
         // No cycles in the db
-        Optional<Cycle> result = cycleRepository.findCurrentCycleByUserIdAndMdn("6671d6cdd518422008b3d9fb",
-                "1234567890", System.currentTimeMillis());
+        Optional<Cycle> result = cycleRepository.findCurrentCycleByUserIdAndMdn(USER_ID,
+                MDN, System.currentTimeMillis());
 
         Assertions.assertTrue(result.isEmpty());
     }
@@ -63,12 +68,12 @@ public class CycleRepositoryTest {
     @Test
     void testFindCurrentCycleByUserIdAndMdn_NoCurrentCycle() {
         // End date is before current date
-        Cycle cycle = new Cycle("6671d6f6d518422008b3d9fc", "1234567890", System.currentTimeMillis() - 86400000,
-                System.currentTimeMillis() - 43200000, "6671d6cdd518422008b3d9fb");
+        Cycle cycle = new Cycle("6671d6f6d518422008b3d9fc", MDN, Instant.now().minus(1, ChronoUnit.DAYS).toEpochMilli(),
+                System.currentTimeMillis() - 43200000, USER_ID);
         cycleRepository.save(cycle);
 
-        Optional<Cycle> result = cycleRepository.findCurrentCycleByUserIdAndMdn("6671d6cdd518422008b3d9fb",
-                "1234567890", System.currentTimeMillis());
+        Optional<Cycle> result = cycleRepository.findCurrentCycleByUserIdAndMdn(USER_ID,
+                MDN, System.currentTimeMillis());
 
         Assertions.assertTrue(result.isEmpty());
     }
@@ -77,16 +82,16 @@ public class CycleRepositoryTest {
     void testFindCurrentCycleByUserIdAndMdn_CycleStartDateOnCurrentDate() {
         Long currentDate = System.currentTimeMillis();
         // Start date is now and end date is tomorrow
-        Cycle cycle1 = new Cycle("6671d6f6d518422008b3d9fc", "1234567890", currentDate,
-                System.currentTimeMillis() + 86400000, "6671d6cdd518422008b3d9fb");
+        Cycle cycle1 = new Cycle("6671d6f6d518422008b3d9fc", MDN, currentDate,
+                Instant.now().plus(1, ChronoUnit.DAYS).toEpochMilli(), USER_ID);
         cycleRepository.save(cycle1);
         // Start date is tomorrow and end date is day after tomorrow
-        Cycle cycle2 = new Cycle("66711abbd518422008b3d9fa", "1234567890", System.currentTimeMillis() + 86400001,
-                System.currentTimeMillis() + 172800000, "6671d6cdd518422008b3d9fb");
+        Cycle cycle2 = new Cycle("66711abbd518422008b3d9fa", MDN, Instant.now().plus(1, ChronoUnit.DAYS).plusMillis(1).toEpochMilli(),
+                Instant.now().plus(2, ChronoUnit.DAYS).toEpochMilli(), USER_ID);
         cycleRepository.save(cycle2);
 
-        Optional<Cycle> result = cycleRepository.findCurrentCycleByUserIdAndMdn("6671d6cdd518422008b3d9fb",
-                "1234567890", currentDate);
+        Optional<Cycle> result = cycleRepository.findCurrentCycleByUserIdAndMdn(USER_ID,
+                MDN, currentDate);
 
         Assertions.assertTrue(result.isPresent());
         Assertions.assertEquals(result.get().getUserId(),cycle1.getUserId());
@@ -98,16 +103,16 @@ public class CycleRepositoryTest {
     void testFindCurrentCycleByUserIdAndMdn_CycleEndDateOnCurrentDate() {
         Long currentDate = System.currentTimeMillis();
         // Start date is yesterday and end date is now
-        Cycle cycle1 = new Cycle("6671d6f6d518422008b3d9fc", "1234567890",currentDate - 86400000,
-                currentDate, "6671d6cdd518422008b3d9fb");
+        Cycle cycle1 = new Cycle("6671d6f6d518422008b3d9fc", MDN,currentDate - 86400000,
+                currentDate, USER_ID);
         cycleRepository.save(cycle1);
         // Start date is 1ms from now and end date is tomorrow
-        Cycle cycle2 = new Cycle("66711abbd518422008b3d9fa", "1234567890", currentDate + 1,
-                currentDate + 86400000, "6671d6cdd518422008b3d9fb");
+        Cycle cycle2 = new Cycle("66711abbd518422008b3d9fa", MDN, currentDate + 1,
+                currentDate + 86400000, USER_ID);
         cycleRepository.save(cycle2);
 
-        Optional<Cycle> result = cycleRepository.findCurrentCycleByUserIdAndMdn("6671d6cdd518422008b3d9fb",
-                "1234567890", currentDate);
+        Optional<Cycle> result = cycleRepository.findCurrentCycleByUserIdAndMdn(USER_ID,
+                MDN, currentDate);
 
         Assertions.assertTrue(result.isPresent());
         Assertions.assertEquals(result.get().getUserId(),cycle1.getUserId());
@@ -120,12 +125,12 @@ public class CycleRepositoryTest {
         String userId1 = "667d6cdd518422008b3d9fb";
         String userId2 = "667d6cdd518422008b3d9fc";
         // Start date is yesterday and end date is tomorrow
-        Cycle cycle1 = new Cycle("6671d6f6d518422008b3d9fc", "1234567890", System.currentTimeMillis() - 86400000,
-                System.currentTimeMillis() + 86400000, userId1);
+        Cycle cycle1 = new Cycle("6671d6f6d518422008b3d9fc", MDN, Instant.now().minus(1, ChronoUnit.DAYS).toEpochMilli(),
+                Instant.now().plus(1, ChronoUnit.DAYS).toEpochMilli(), userId1);
         cycleRepository.save(cycle1);
         // Start date is yesterday and end date is tomorrow
-        Cycle cycle2 = new Cycle("6671d6f6d518422008b3d9fd", "2764552340", System.currentTimeMillis() - 86400000,
-                System.currentTimeMillis() + 86400000, userId2);
+        Cycle cycle2 = new Cycle("6671d6f6d518422008b3d9fd", "2764552340", Instant.now().minus(1, ChronoUnit.DAYS).toEpochMilli(),
+                Instant.now().plus(1, ChronoUnit.DAYS).toEpochMilli(), userId2);
         cycleRepository.save(cycle2);
 
         Optional<Cycle> result = cycleRepository.findCurrentCycleByUserIdAndMdn(userId2,
@@ -139,15 +144,15 @@ public class CycleRepositoryTest {
     @Test
     void testFindCurrentCycleByUserIdAndMdn_MultipleMdns() {
         String userId = "667d6cdd518422008b3d9fb";
-        String mdn1 = "1234567890";
+        String mdn1 = MDN;
         String mdn2 = "2764552340";
         // Start date is yesterday and end date is tomorrow
-        Cycle cycle1 = new Cycle("6671d6f6d518422008b3d9fc", mdn1, System.currentTimeMillis() - 86400000,
-                System.currentTimeMillis() + 86400000, userId);
+        Cycle cycle1 = new Cycle("6671d6f6d518422008b3d9fc", mdn1, Instant.now().minus(1, ChronoUnit.DAYS).toEpochMilli(),
+                Instant.now().plus(1, ChronoUnit.DAYS).toEpochMilli(), userId);
         cycleRepository.save(cycle1);
         // Start date is yesterday and end date is tomorrow
-        Cycle cycle2 = new Cycle("6671d6f6d518422008b3d9fd", mdn2, System.currentTimeMillis() - 86400000,
-                System.currentTimeMillis() + 86400000, userId);
+        Cycle cycle2 = new Cycle("6671d6f6d518422008b3d9fd", mdn2, Instant.now().minus(1, ChronoUnit.DAYS).toEpochMilli(),
+                Instant.now().plus(1, ChronoUnit.DAYS).toEpochMilli(), userId);
         cycleRepository.save(cycle2);
 
         Optional<Cycle> result = cycleRepository.findCurrentCycleByUserIdAndMdn(userId,
@@ -162,15 +167,15 @@ public class CycleRepositoryTest {
     void testFindCurrentCycleByUserIdAndMdn_MultipleUsersAndMdns() {
         String userId1 = "667d6cdd518422008b3d9fb";
         String userId2 = "667d6cdd518422008b3d9fc";
-        String mdn1 = "1234567890";
+        String mdn1 = MDN;
         String mdn2 = "2764552340";
         // Start date is yesterday and end date is tomorrow
-        Cycle cycle1 = new Cycle("6671d6f6d518422008b3d9fc", mdn1, System.currentTimeMillis() - 86400000,
-                System.currentTimeMillis() + 86400000, userId1);
+        Cycle cycle1 = new Cycle("6671d6f6d518422008b3d9fc", mdn1, Instant.now().minus(1, ChronoUnit.DAYS).toEpochMilli(),
+                Instant.now().plus(1, ChronoUnit.DAYS).toEpochMilli(), userId1);
         cycleRepository.save(cycle1);
         // Start date is yesterday and end date is tomorrow
-        Cycle cycle2 = new Cycle("6671d6f6d518422008b3d9fd", mdn2, System.currentTimeMillis() - 86400000,
-                System.currentTimeMillis() + 86400000, userId2);
+        Cycle cycle2 = new Cycle("6671d6f6d518422008b3d9fd", mdn2, Instant.now().minus(1, ChronoUnit.DAYS).toEpochMilli(),
+                Instant.now().plus(1, ChronoUnit.DAYS).toEpochMilli(), userId2);
         cycleRepository.save(cycle2);
 
         Optional<Cycle> result = cycleRepository.findCurrentCycleByUserIdAndMdn(userId2,
@@ -184,23 +189,23 @@ public class CycleRepositoryTest {
     @Test
     void testFindCyclesByUserIdAndMdnOrderByStartDateDesc_NotFound() {
         // No cycles in the db
-        Optional<Cycle> result = cycleRepository.findByUserIdAndMdnOrderByStartDateDesc("6671d6cdd518422008b3d9fb",
-                "1234567890").stream().findFirst();
+        Optional<Cycle> result = cycleRepository.findByUserIdAndMdnOrderByStartDateDesc(USER_ID,
+                MDN).stream().findFirst();
 
         Assertions.assertTrue(result.isEmpty());
     }
 
     @Test
     void testFindCyclesByUserIdAndMdnOrderByStartDateDesc() {
-        Cycle cycle1 = new Cycle("6671d6f6d518422008b3d9fc", "1234567890", System.currentTimeMillis() - 86400000,
-                System.currentTimeMillis() + 86400000, "6671d6cdd518422008b3d9fb");
-        Cycle cycle2 = new Cycle("66711abbd518422008b3d9fa", "1234567890", System.currentTimeMillis() + 86400001,
-                System.currentTimeMillis() + 172800000, "6671d6cdd518422008b3d9fb");
+        Cycle cycle1 = new Cycle("6671d6f6d518422008b3d9fc", MDN, Instant.now().minus(1, ChronoUnit.DAYS).toEpochMilli(),
+                Instant.now().plus(1, ChronoUnit.DAYS).toEpochMilli(), USER_ID);
+        Cycle cycle2 = new Cycle("66711abbd518422008b3d9fa", MDN, Instant.now().plus(1, ChronoUnit.DAYS).plusMillis(1).toEpochMilli(),
+                Instant.now().plus(2, ChronoUnit.DAYS).toEpochMilli(), USER_ID);
         cycleRepository.save(cycle1);
         cycleRepository.save(cycle2);
 
-        Optional<Cycle> result = cycleRepository.findByUserIdAndMdnOrderByStartDateDesc("6671d6cdd518422008b3d9fb",
-                "1234567890").stream().findFirst();
+        Optional<Cycle> result = cycleRepository.findByUserIdAndMdnOrderByStartDateDesc(USER_ID,
+                MDN).stream().findFirst();
 
         Assertions.assertTrue(result.isPresent());
         Assertions.assertEquals(result.get().getId(),cycle2.getId());
@@ -212,18 +217,18 @@ public class CycleRepositoryTest {
     void testFindCyclesByUserIdAndMdnOrderByStartDateDesc_MultipleCycles() {
 
         Date currentDate = new Date();
-        Cycle cycle1 = new Cycle("6671d6f6d518422008b3d9fc", "1234567890", System.currentTimeMillis() - 86400000,
-                System.currentTimeMillis() + 86400000, "6671d6cdd518422008b3d9fb");
-        Cycle cycle2 = new Cycle("66711abbd518422008b3d9fa", "1234567890", System.currentTimeMillis() + 86400001,
-                System.currentTimeMillis() + 172800000, "6671d6cdd518422008b3d9fb");
-        Cycle cycle3 = new Cycle("66711abbd518422008b3d9fa", "1234567890", System.currentTimeMillis() + 172800001,
-                System.currentTimeMillis() + 259200000, "6671d6cdd518422008b3d9fb");
+        Cycle cycle1 = new Cycle("6671d6f6d518422008b3d9fc", MDN, Instant.now().minus(1, ChronoUnit.DAYS).toEpochMilli(),
+                Instant.now().plus(1, ChronoUnit.DAYS).toEpochMilli(), USER_ID);
+        Cycle cycle2 = new Cycle("66711abbd518422008b3d9fa", MDN, Instant.now().plus(1, ChronoUnit.DAYS).plusMillis(1).toEpochMilli(),
+                Instant.now().plus(2, ChronoUnit.DAYS).toEpochMilli(), USER_ID);
+        Cycle cycle3 = new Cycle("66711abbd518422008b3d9fa", MDN, Instant.now().plus(2, ChronoUnit.DAYS).plusMillis(1).toEpochMilli(),
+                Instant.now().plus(3, ChronoUnit.DAYS).toEpochMilli(), USER_ID);
         cycleRepository.save(cycle1);
         cycleRepository.save(cycle2);
         cycleRepository.save(cycle3);
 
-        Optional<Cycle> result = cycleRepository.findByUserIdAndMdnOrderByStartDateDesc("6671d6cdd518422008b3d9fb",
-                "1234567890").stream().findFirst();
+        Optional<Cycle> result = cycleRepository.findByUserIdAndMdnOrderByStartDateDesc(USER_ID,
+                MDN).stream().findFirst();
 
         Assertions.assertTrue(result.isPresent());
         Assertions.assertEquals(result.get().getId(),cycle3.getId());
@@ -233,20 +238,20 @@ public class CycleRepositoryTest {
 
     @Test
     void testFindCyclesByUserIdAndMdnOrderByStartDateDesc_MultipleUsers() {
-        String userId1 = "6671d6cdd518422008b3d9fb";
+        String userId1 = USER_ID;
         String userId2 = "6671d6cdd518422008b3d9fc";
-        Cycle cycle1 = new Cycle("6671d6f6d518422008b3d9fa", "1234567890", System.currentTimeMillis() - 86400000,
-                System.currentTimeMillis() + 86400000, userId1);
-        Cycle cycle2 = new Cycle("66711abbd518422008b3d9fb", "1234567890", System.currentTimeMillis() + 86400001,
-                System.currentTimeMillis() + 172800000, userId1);
-        Cycle cycle3 = new Cycle("66711abbd518422008b3d9fc", "1234567890", System.currentTimeMillis() + 172800001,
-                System.currentTimeMillis() + 259200000, userId1);
-        Cycle cycle4 = new Cycle("6671d6f6d518422008b3d9fc", "1234567890", System.currentTimeMillis() - 86400000,
-                System.currentTimeMillis() + 86400000, userId2);
-        Cycle cycle5 = new Cycle("66711abbd518422008b3d9fd", "1234567890", System.currentTimeMillis() + 86400001,
-                System.currentTimeMillis() + 172800000, userId2);
-        Cycle cycle6 = new Cycle("66711abbd518422008b3d9fe", "1234567890", System.currentTimeMillis() + 172800001,
-                System.currentTimeMillis() + 259200000, userId2);
+        Cycle cycle1 = new Cycle("6671d6f6d518422008b3d9fa", MDN, Instant.now().minus(1, ChronoUnit.DAYS).toEpochMilli(),
+                Instant.now().plus(1, ChronoUnit.DAYS).toEpochMilli(), userId1);
+        Cycle cycle2 = new Cycle("66711abbd518422008b3d9fb", MDN, Instant.now().plus(1, ChronoUnit.DAYS).plusMillis(1).toEpochMilli(),
+                Instant.now().plus(2, ChronoUnit.DAYS).toEpochMilli(), userId1);
+        Cycle cycle3 = new Cycle("66711abbd518422008b3d9fc", MDN, Instant.now().plus(2, ChronoUnit.DAYS).plusMillis(1).toEpochMilli(),
+                Instant.now().plus(3, ChronoUnit.DAYS).toEpochMilli(), userId1);
+        Cycle cycle4 = new Cycle("6671d6f6d518422008b3d9fc", MDN, Instant.now().minus(1, ChronoUnit.DAYS).toEpochMilli(),
+                Instant.now().plus(1, ChronoUnit.DAYS).toEpochMilli(), userId2);
+        Cycle cycle5 = new Cycle("66711abbd518422008b3d9fd", MDN, Instant.now().plus(1, ChronoUnit.DAYS).plusMillis(1).toEpochMilli(),
+                Instant.now().plus(2, ChronoUnit.DAYS).toEpochMilli(), userId2);
+        Cycle cycle6 = new Cycle("66711abbd518422008b3d9fe", MDN, Instant.now().plus(2, ChronoUnit.DAYS).plusMillis(1).toEpochMilli(),
+                Instant.now().plus(3, ChronoUnit.DAYS).toEpochMilli(), userId2);
         cycleRepository.save(cycle1);
         cycleRepository.save(cycle2);
         cycleRepository.save(cycle3);
@@ -255,7 +260,7 @@ public class CycleRepositoryTest {
         cycleRepository.save(cycle6);
 
         Optional<Cycle> result = cycleRepository.findByUserIdAndMdnOrderByStartDateDesc(userId2,
-                "1234567890").stream().findFirst();
+                MDN).stream().findFirst();
 
         Assertions.assertTrue(result.isPresent());
         Assertions.assertEquals(result.get().getId(), cycle6.getId());
@@ -265,22 +270,22 @@ public class CycleRepositoryTest {
 
     @Test
     void testFindCyclesByUserIdAndMdnOrderByStartDateDesc_MultipleUsersAndMdns() {
-        String userId1 = "6671d6cdd518422008b3d9fb";
+        String userId1 = USER_ID;
         String userId2 = "6671d6cdd518422008b3d9fc";
-        String mdn1 = "1234567890";
+        String mdn1 = MDN;
         String mdn2 = "1234567891";
-        Cycle cycle1 = new Cycle("6671d6f6d518422008b3d9fa", mdn1, System.currentTimeMillis() - 86400000,
-                System.currentTimeMillis() + 86400000, userId1);
-        Cycle cycle2 = new Cycle("66711abbd518422008b3d9fb", mdn1, System.currentTimeMillis() + 86400001,
-                System.currentTimeMillis() + 172800000, userId1);
-        Cycle cycle3 = new Cycle("66711abbd518422008b3d9fc", mdn1, System.currentTimeMillis() + 172800001,
-                System.currentTimeMillis() + 259200000, userId1);
-        Cycle cycle4 = new Cycle("6671d6f6d518422008b3d9fc", mdn2, System.currentTimeMillis() - 86400000,
-                System.currentTimeMillis() + 86400000, userId2);
-        Cycle cycle5 = new Cycle("66711abbd518422008b3d9fd", mdn2, System.currentTimeMillis() + 86400001,
-                System.currentTimeMillis() + 172800000, userId2);
-        Cycle cycle6 = new Cycle("66711abbd518422008b3d9fe", mdn2, System.currentTimeMillis() + 172800001,
-                System.currentTimeMillis() + 259200000, userId2);
+        Cycle cycle1 = new Cycle("6671d6f6d518422008b3d9fa", mdn1, Instant.now().minus(1, ChronoUnit.DAYS).toEpochMilli(),
+                Instant.now().plus(1, ChronoUnit.DAYS).toEpochMilli(), userId1);
+        Cycle cycle2 = new Cycle("66711abbd518422008b3d9fb", mdn1, Instant.now().plus(1, ChronoUnit.DAYS).plusMillis(1).toEpochMilli(),
+                Instant.now().plus(2, ChronoUnit.DAYS).toEpochMilli(), userId1);
+        Cycle cycle3 = new Cycle("66711abbd518422008b3d9fc", mdn1, Instant.now().plus(2, ChronoUnit.DAYS).plusMillis(1).toEpochMilli(),
+                Instant.now().plus(3, ChronoUnit.DAYS).toEpochMilli(), userId1);
+        Cycle cycle4 = new Cycle("6671d6f6d518422008b3d9fc", mdn2, Instant.now().minus(1, ChronoUnit.DAYS).toEpochMilli(),
+                Instant.now().plus(1, ChronoUnit.DAYS).toEpochMilli(), userId2);
+        Cycle cycle5 = new Cycle("66711abbd518422008b3d9fd", mdn2, Instant.now().plus(1, ChronoUnit.DAYS).plusMillis(1).toEpochMilli(),
+                Instant.now().plus(2, ChronoUnit.DAYS).toEpochMilli(), userId2);
+        Cycle cycle6 = new Cycle("66711abbd518422008b3d9fe", mdn2, Instant.now().plus(2, ChronoUnit.DAYS).plusMillis(1).toEpochMilli(),
+                Instant.now().plus(3, ChronoUnit.DAYS).toEpochMilli(), userId2);
         cycleRepository.save(cycle1);
         cycleRepository.save(cycle2);
         cycleRepository.save(cycle3);

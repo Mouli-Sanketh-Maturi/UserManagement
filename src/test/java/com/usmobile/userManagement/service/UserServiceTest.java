@@ -23,6 +23,9 @@ import java.util.Optional;
 
 @ExtendWith(SpringExtension.class)
 public class UserServiceTest {
+    
+    private static final String USER_ID = "6671d6cdd518422008b3d9fb";
+    private static final String PASSWORD = "password123";
 
     @Mock
     private UserRepository userRepository;
@@ -49,10 +52,10 @@ public class UserServiceTest {
         when(userRepository.existsByEmail(anyString())).thenReturn(false);
         when(userRepository.save(any(User.class))).thenAnswer(invocation -> {
             User user = invocation.getArgument(0);
-            user.setId("6671d6cdd518422008b3d9fb");
+            user.setId(USER_ID);
             return user;
         });
-        when(passwordEncoder.encode("password123")).thenReturn(actualPasswordEncoder.encode("password123"));
+        when(passwordEncoder.encode(PASSWORD)).thenReturn(actualPasswordEncoder.encode(PASSWORD));
 
         // ArgumentCaptor to capture the User object saved in the repository
         ArgumentCaptor<User> userCaptor = ArgumentCaptor.forClass(User.class);
@@ -67,13 +70,13 @@ public class UserServiceTest {
         User savedUser = userCaptor.getValue();
 
         // Verify that the password encoder was used
-        verify(passwordEncoder).encode("password123");
+        verify(passwordEncoder).encode(PASSWORD);
 
         assertNotNull(savedUser);
         assertEquals("John", savedUser.getFirstName());
         assertEquals("Doe", savedUser.getLastName());
         assertEquals("john.doe@example.com", savedUser.getEmail());
-        assertTrue(actualPasswordEncoder.matches("password123", savedUser.getPassword()));
+        assertTrue(actualPasswordEncoder.matches(PASSWORD, savedUser.getPassword()));
     }
 
     @Test
@@ -100,8 +103,8 @@ public class UserServiceTest {
             User user = invocation.getArgument(0);
             return user;
         });
-        when(userRepository.findById(anyString())).thenReturn(Optional.of(new User("6671d6cdd518422008b3d9fb", "John", "Doe",
-                "john.doe@example.com", actualPasswordEncoder.encode("password123"))));
+        when(userRepository.findById(anyString())).thenReturn(Optional.of(new User(USER_ID, "John", "Doe",
+                "john.doe@example.com", actualPasswordEncoder.encode(PASSWORD))));
 
         // ArgumentCaptor to capture the User object saved in the repository
         ArgumentCaptor<User> userCaptor = ArgumentCaptor.forClass(User.class);
@@ -119,7 +122,7 @@ public class UserServiceTest {
         assertEquals("Jane", savedUser.getFirstName());
         assertEquals("Porter", savedUser.getLastName());
         assertEquals("jane.porter@example.com", savedUser.getEmail());
-        assertTrue(actualPasswordEncoder.matches("password123", savedUser.getPassword()));
+        assertTrue(actualPasswordEncoder.matches(PASSWORD, savedUser.getPassword()));
     }
 
     @Test
@@ -129,8 +132,8 @@ public class UserServiceTest {
 
         // Set up mocks
         when(userRepository.existsByEmail(anyString())).thenReturn(true);
-        when(userRepository.findById(anyString())).thenReturn(Optional.of(new User("6671d6cdd518422008b3d9fb", "John", "Doe",
-                "john@example.com", actualPasswordEncoder.encode("password123"))));
+        when(userRepository.findById(anyString())).thenReturn(Optional.of(new User(USER_ID, "John", "Doe",
+                "john@example.com", actualPasswordEncoder.encode(PASSWORD))));
 
         // Perform the test action
         assertThrows(UserAlreadyExistsException.class, () -> userService.updateUser(request))
@@ -154,11 +157,11 @@ public class UserServiceTest {
 
     private CreateUserRequest getDummyCreateUserRequest() {
         return new CreateUserRequest("John", "Doe",
-                "john.doe@example.com", "password123");
+                "john.doe@example.com", PASSWORD);
     }
 
     private UpdateUserRequest getDummyUpdateUserRequest() {
-        return new UpdateUserRequest("6671d6cdd518422008b3d9fb", "Jane", "Porter",
+        return new UpdateUserRequest(USER_ID, "Jane", "Porter",
                 "jane.porter@example.com");
     }
 }

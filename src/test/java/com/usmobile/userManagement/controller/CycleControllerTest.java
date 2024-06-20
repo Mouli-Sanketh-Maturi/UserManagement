@@ -5,7 +5,6 @@ import com.usmobile.userManagement.exception.NoCyclesFoundException;
 import com.usmobile.userManagement.model.CycleInfo;
 import com.usmobile.userManagement.model.DailyUsageReport;
 import com.usmobile.userManagement.service.CycleService;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
@@ -28,6 +27,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @WebMvcTest(CycleController.class)
 @AutoConfigureMockMvc(addFilters = false)
 public class CycleControllerTest {
+    
+    private static final String CURRENT_CYCLE_REPORT_PATH = "/api/v1/current-cycle-report";
+    private static final String CYCLE_HISTORY_PATH = "/api/v1/cycle-history";
+    private static final String USER_ID = "6671d6cdd518422008b3d9fb";
+    private static final String MDN = "1234567890";
+    private static final String USER_ID_KEY = "userId";
+    private static final String MDN_KEY = "mdn";
 
     @Autowired
     private MockMvc mockMvc;
@@ -35,24 +41,14 @@ public class CycleControllerTest {
     @MockBean
     private CycleService cycleService;
 
-    String currentCycleReportPath;
-
-    String cycleHistoryPath;
-
-    @BeforeEach
-    public void setUp() {
-        this.currentCycleReportPath = "/api/v1/current-cycle-report";
-        this.cycleHistoryPath = "/api/v1/cycle-history";
-    }
-
     @Test
     public void testGetDailyUsageReport_Success() throws Exception {
 
         Mockito.when(cycleService.getDailyUsageReport(Mockito.anyString(), Mockito.anyString()))
                 .thenReturn(getDummyDailyUsageReport());
-        mockMvc.perform(get(currentCycleReportPath)
-                .param("userId", "6671d6cdd518422008b3d9fb")
-                .param("mdn", "1234567890"))
+        mockMvc.perform(get(CURRENT_CYCLE_REPORT_PATH)
+                .param(USER_ID_KEY, USER_ID)
+                .param(MDN_KEY, MDN))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].date").value("2024-06-19T03:35:10.950+00:00"))
                 .andExpect(jsonPath("$[0].dailyUsage").value(256));
@@ -62,9 +58,9 @@ public class CycleControllerTest {
     public void testGetDailyUsageReport_WhenDailyUsageReportIsEmpty() throws Exception {
         Mockito.when(cycleService.getDailyUsageReport(Mockito.anyString(), Mockito.anyString()))
                 .thenReturn(List.of());
-        mockMvc.perform(get(currentCycleReportPath)
-                .param("userId", "6671d6cdd518422008b3d9fb")
-                .param("mdn", "1234567890"))
+        mockMvc.perform(get(CURRENT_CYCLE_REPORT_PATH)
+                .param(USER_ID_KEY, USER_ID)
+                .param(MDN_KEY, MDN))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$").isEmpty());
     }
@@ -73,20 +69,19 @@ public class CycleControllerTest {
     public void testGetDailyUsageReport_WhenNoCycleFound() throws Exception {
         Mockito.when(cycleService.getDailyUsageReport(Mockito.anyString(), Mockito.anyString()))
                 .thenThrow(new NoCyclesFoundException(String.format("No current cycle found for this user: %s and mdn: %s.",
-                        "6671d6cdd518422008b3d9fb", "1234567890")));
-        mockMvc.perform(get(currentCycleReportPath)
-                .param("userId", "6671d6cdd518422008b3d9fb")
-                .param("mdn", "1234567890"))
+                        USER_ID, MDN)));
+        mockMvc.perform(get(CURRENT_CYCLE_REPORT_PATH)
+                .param(USER_ID_KEY, USER_ID)
+                .param(MDN_KEY, MDN))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.detail").value(
-                        String.format("No current cycle found for this user: %s and mdn: %s.", "6671d6cdd518422008b3d9fb",
-                                "1234567890")));
+                        String.format("No current cycle found for this user: %s and mdn: %s.", USER_ID, MDN)));
     }
 
     @Test
     public void testGetDailyUsageReport_WhenMdnIsMissing() throws Exception {
-        mockMvc.perform(get(currentCycleReportPath)
-                .param("userId", "6671d6cdd518422008b3d9fb"))
+        mockMvc.perform(get(CURRENT_CYCLE_REPORT_PATH)
+                .param(USER_ID_KEY, USER_ID))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.detail").value(
                         "Required request parameter 'mdn' for method parameter type String is not present"));
@@ -94,8 +89,8 @@ public class CycleControllerTest {
 
     @Test
     public void testGetDailyUsageReport_WhenUserIdIsMissing() throws Exception {
-        mockMvc.perform(get(currentCycleReportPath)
-                .param("mdn", "1234567890"))
+        mockMvc.perform(get(CURRENT_CYCLE_REPORT_PATH)
+                .param(MDN_KEY, MDN))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.detail").value(
                         "Required request parameter 'userId' for method parameter type String is not present"));
@@ -103,7 +98,7 @@ public class CycleControllerTest {
 
     @Test
     public void testGetDailyUsageReport_WhenUserIdAndMdnAreMissing() throws Exception {
-        mockMvc.perform(get(currentCycleReportPath))
+        mockMvc.perform(get(CURRENT_CYCLE_REPORT_PATH))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.detail").value(
                         "Required request parameter 'userId' for method parameter type String is not present"));
@@ -111,9 +106,9 @@ public class CycleControllerTest {
 
     @Test
     public void testGetDailyUsageReport_WhenUserIdIsEmpty() throws Exception {
-        mockMvc.perform(get(currentCycleReportPath)
-                .param("userId", "")
-                .param("mdn", "1234567890"))
+        mockMvc.perform(get(CURRENT_CYCLE_REPORT_PATH)
+                .param(USER_ID_KEY, "")
+                .param(MDN_KEY, MDN))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.detail").value(
                         "getCurrentCycleReport.userId: must not be blank"));
@@ -121,9 +116,9 @@ public class CycleControllerTest {
 
     @Test
     public void testGetDailyUsageReport_WhenMdnIsEmpty() throws Exception {
-        mockMvc.perform(get(currentCycleReportPath)
-                .param("userId", "6671d6cdd518422008b3d9fb")
-                .param("mdn", ""))
+        mockMvc.perform(get(CURRENT_CYCLE_REPORT_PATH)
+                .param(USER_ID_KEY, USER_ID)
+                .param(MDN_KEY, ""))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.detail").value(
                         "getCurrentCycleReport.mdn: must not be blank"));
@@ -133,9 +128,9 @@ public class CycleControllerTest {
     public void testGetDailyUsageReport_WhenExceptionIsThrown() throws Exception {
         Mockito.when(cycleService.getDailyUsageReport(Mockito.anyString(), Mockito.anyString()))
                 .thenThrow(new RuntimeException("Internal Server Error"));
-        mockMvc.perform(get(currentCycleReportPath)
-                .param("userId", "6671d6cdd518422008b3d9fb")
-                .param("mdn", "1234567890"))
+        mockMvc.perform(get(CURRENT_CYCLE_REPORT_PATH)
+                .param(USER_ID_KEY, USER_ID)
+                .param(MDN_KEY, MDN))
                 .andExpect(status().isInternalServerError())
                 .andExpect(jsonPath("$.detail").value("Internal Server Error, please try again later"));
     }
@@ -144,23 +139,22 @@ public class CycleControllerTest {
     public void testGetCycleHistory_NotFound() throws Exception {
         Mockito.when(cycleService.getCycleHistory(Mockito.anyString(), Mockito.anyString()))
                 .thenThrow(new NoCyclesFoundException(String.format("No cycles found for this user: %s and mdn: %s.",
-                        "6671d6cdd518422008b3d9fb", "1234567890")));
-        mockMvc.perform(get(cycleHistoryPath)
-                .param("userId", "6671d6cdd518422008b3d9fb")
-                .param("mdn", "1234567890"))
+                        USER_ID, MDN)));
+        mockMvc.perform(get(CYCLE_HISTORY_PATH)
+                .param(USER_ID_KEY, USER_ID)
+                .param(MDN_KEY, MDN))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.detail").value(
-                        String.format("No cycles found for this user: %s and mdn: %s.", "6671d6cdd518422008b3d9fb",
-                                "1234567890")));
+                        String.format("No cycles found for this user: %s and mdn: %s.", USER_ID, MDN)));
     }
 
     @Test
     public void testGetCycleHistory_Success() throws Exception {
         Mockito.when(cycleService.getCycleHistory(Mockito.anyString(), Mockito.anyString()))
                 .thenReturn(getDummyCycleHistory());
-        mockMvc.perform(get(cycleHistoryPath)
-                .param("userId", "6671d6cdd518422008b3d9fb")
-                .param("mdn", "1234567890"))
+        mockMvc.perform(get(CYCLE_HISTORY_PATH)
+                .param(USER_ID_KEY, USER_ID)
+                .param(MDN_KEY, MDN))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].cycleId").value("6671d6cde518422008b3d9a7"))
                 .andExpect(jsonPath("$[0].startDate").value("2024-06-19T03:35:10.950+00:00"))
@@ -169,8 +163,8 @@ public class CycleControllerTest {
 
     @Test
     public void testGetCycleHistory_WhenMdnIsMissing() throws Exception {
-        mockMvc.perform(get(cycleHistoryPath)
-                .param("userId", "6671d6cdd518422008b3d9fb"))
+        mockMvc.perform(get(CYCLE_HISTORY_PATH)
+                .param(USER_ID_KEY, USER_ID))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.detail").value(
                         "Required request parameter 'mdn' for method parameter type String is not present"));
@@ -178,8 +172,8 @@ public class CycleControllerTest {
 
     @Test
     public void testGetCycleHistory_WhenUserIdIsMissing() throws Exception {
-        mockMvc.perform(get(cycleHistoryPath)
-                .param("mdn", "1234567890"))
+        mockMvc.perform(get(CYCLE_HISTORY_PATH)
+                .param(MDN_KEY, MDN))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.detail").value(
                         "Required request parameter 'userId' for method parameter type String is not present"));
@@ -187,7 +181,7 @@ public class CycleControllerTest {
 
     @Test
     public void testGetCycleHistory_WhenUserIdAndMdnAreMissing() throws Exception {
-        mockMvc.perform(get(cycleHistoryPath))
+        mockMvc.perform(get(CYCLE_HISTORY_PATH))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.detail").value(
                         "Required request parameter 'userId' for method parameter type String is not present"));
@@ -195,9 +189,9 @@ public class CycleControllerTest {
 
     @Test
     public void testGetCycleHistory_WhenUserIdIsEmpty() throws Exception {
-        mockMvc.perform(get(cycleHistoryPath)
-                .param("userId", "")
-                .param("mdn", "1234567890"))
+        mockMvc.perform(get(CYCLE_HISTORY_PATH)
+                .param(USER_ID_KEY, "")
+                .param(MDN_KEY, MDN))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.detail").value(
                         "getCycleHistory.userId: must not be blank"));
@@ -205,9 +199,9 @@ public class CycleControllerTest {
 
     @Test
     public void testGetCycleHistory_WhenMdnIsEmpty() throws Exception {
-        mockMvc.perform(get(cycleHistoryPath)
-                .param("userId", "6671d6cdd518422008b3d9fb")
-                .param("mdn", ""))
+        mockMvc.perform(get(CYCLE_HISTORY_PATH)
+                .param(USER_ID_KEY, USER_ID)
+                .param(MDN_KEY, ""))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.detail").value(
                         "getCycleHistory.mdn: must not be blank"));
@@ -217,9 +211,9 @@ public class CycleControllerTest {
     public void testGetCycleHistory_WhenExceptionIsThrown() throws Exception {
         Mockito.when(cycleService.getCycleHistory(Mockito.anyString(), Mockito.anyString()))
                 .thenThrow(new RuntimeException("Internal Server Error"));
-        mockMvc.perform(get(cycleHistoryPath)
-                .param("userId", "6671d6cdd518422008b3d9fb")
-                .param("mdn", "1234567890"))
+        mockMvc.perform(get(CYCLE_HISTORY_PATH)
+                .param(USER_ID_KEY, USER_ID)
+                .param(MDN_KEY, MDN))
                 .andExpect(status().isInternalServerError())
                 .andExpect(jsonPath("$.detail").value("Internal Server Error, please try again later"));
     }

@@ -18,6 +18,9 @@ import java.util.List;
 @DataMongoTest
 @Testcontainers
 public class DailyUsageRepositoryTest {
+    
+    private static final String USER_ID = "6671d6cdd518422008b3d9fb";
+    private static final String MDN = "1234567890";
 
     @Autowired
     private DailyUsageRepository dailyUsageRepository;
@@ -40,8 +43,8 @@ public class DailyUsageRepositoryTest {
     @Test
     void testDailyUsageRepository_NoData() {
         List<DailyUsage> dailyUsageList = dailyUsageRepository
-                .findByUserIdAndMdnAndUsageDateBetweenOrderByUsageDateDesc("6671d6cdd518422008b3d9fb",
-                        "1234567890", System.currentTimeMillis(), System.currentTimeMillis() + 86400000, sort);
+                .findByUserIdAndMdnAndUsageDateBetweenOrderByUsageDateDesc(USER_ID,
+                        MDN, System.currentTimeMillis(), System.currentTimeMillis() + 86400000, sort);
         Assertions.assertTrue(dailyUsageList.isEmpty());
     }
 
@@ -49,8 +52,8 @@ public class DailyUsageRepositoryTest {
     void testDailyUsageRepository_WithSingleDataUsage() {
         Long currentDate = System.currentTimeMillis();
         DailyUsage dailyUsage = new DailyUsage();
-        dailyUsage.setUserId("6671d6cdd518422008b3d9fb");
-        dailyUsage.setMdn("1234567890");
+        dailyUsage.setUserId(USER_ID);
+        dailyUsage.setMdn(MDN);
         dailyUsage.setUsageDate(currentDate);
         dailyUsage.setUsedInMb(100);
         dailyUsageRepository.save(dailyUsage);
@@ -59,8 +62,8 @@ public class DailyUsageRepositoryTest {
 
         //Fetch data usage for the past and next 24 hours
         List<DailyUsage> dailyUsageList = dailyUsageRepository
-                .findByUserIdAndMdnAndUsageDateBetweenOrderByUsageDateDesc("6671d6cdd518422008b3d9fb",
-                        "1234567890", System.currentTimeMillis() - 86400000,
+                .findByUserIdAndMdnAndUsageDateBetweenOrderByUsageDateDesc(USER_ID,
+                        MDN, System.currentTimeMillis() - 86400000,
                         System.currentTimeMillis() + 86400000, sort);
 
         Assertions.assertFalse(dailyUsageList.isEmpty());
@@ -74,32 +77,32 @@ public class DailyUsageRepositoryTest {
         //Current Day Data Usage
         Long currentDate = System.currentTimeMillis();
         DailyUsage dailyUsage1 = new DailyUsage();
-        dailyUsage1.setUserId("6671d6cdd518422008b3d9fb");
-        dailyUsage1.setMdn("1234567890");
+        dailyUsage1.setUserId(USER_ID);
+        dailyUsage1.setMdn(MDN);
         dailyUsage1.setUsageDate(currentDate);
         dailyUsage1.setUsedInMb(100);
         dailyUsageRepository.save(dailyUsage1);
 
         //Previous Day Data Usage
         DailyUsage dailyUsage2 = new DailyUsage();
-        dailyUsage2.setUserId("6671d6cdd518422008b3d9fb");
-        dailyUsage2.setMdn("1234567890");
+        dailyUsage2.setUserId(USER_ID);
+        dailyUsage2.setMdn(MDN);
         dailyUsage2.setUsageDate(currentDate - 86400000);
         dailyUsage2.setUsedInMb(200);
         dailyUsageRepository.save(dailyUsage2);
 
         //Next Day Data Usage
         DailyUsage dailyUsage3 = new DailyUsage();
-        dailyUsage3.setUserId("6671d6cdd518422008b3d9fb");
-        dailyUsage3.setMdn("1234567890");
+        dailyUsage3.setUserId(USER_ID);
+        dailyUsage3.setMdn(MDN);
         dailyUsage3.setUsageDate(currentDate + 86400000);
         dailyUsage3.setUsedInMb(300);
         dailyUsageRepository.save(dailyUsage3);
 
         //Fetch data usage for the past and next 48 hours
         List<DailyUsage> dailyUsageList = dailyUsageRepository
-                .findByUserIdAndMdnAndUsageDateBetweenOrderByUsageDateDesc("6671d6cdd518422008b3d9fb",
-                        "1234567890", System.currentTimeMillis() - 172800000,
+                .findByUserIdAndMdnAndUsageDateBetweenOrderByUsageDateDesc(USER_ID,
+                        MDN, System.currentTimeMillis() - 172800000,
                         System.currentTimeMillis() + 172800000,sort);
 
         Assertions.assertFalse(dailyUsageList.isEmpty());
@@ -115,24 +118,24 @@ public class DailyUsageRepositoryTest {
         //Current Day Data Usage
         Long currentDate = System.currentTimeMillis();
         DailyUsage dailyUsage1 = new DailyUsage();
-        dailyUsage1.setUserId("6671d6cdd518422008b3d9fb");
-        dailyUsage1.setMdn("1234567890");
+        dailyUsage1.setUserId(USER_ID);
+        dailyUsage1.setMdn(MDN);
         dailyUsage1.setUsageDate(currentDate);
         dailyUsage1.setUsedInMb(100);
         dailyUsageRepository.save(dailyUsage1);
 
         //Previous Day Data Usage
         DailyUsage dailyUsage2 = new DailyUsage();
-        dailyUsage2.setUserId("6671d6cdd518422008b3d9fb");
-        dailyUsage2.setMdn("1234567890");
+        dailyUsage2.setUserId(USER_ID);
+        dailyUsage2.setMdn(MDN);
         dailyUsage2.setUsageDate(currentDate- 86400000);
         dailyUsage2.setUsedInMb(200);
         dailyUsageRepository.save(dailyUsage2);
 
         //Next Day Data Usage
         DailyUsage dailyUsage3 = new DailyUsage();
-        dailyUsage3.setUserId("6671d6cdd518422008b3d9fb");
-        dailyUsage3.setMdn("1234567890");
+        dailyUsage3.setUserId(USER_ID);
+        dailyUsage3.setMdn(MDN);
         dailyUsage3.setUsageDate(currentDate + 86400000);
         dailyUsage3.setUsedInMb(300);
         dailyUsageRepository.save(dailyUsage3);
@@ -140,15 +143,15 @@ public class DailyUsageRepositoryTest {
         //Different User Data Usage
         DailyUsage dailyUsage4 = new DailyUsage();
         dailyUsage4.setUserId("6671d6cdd518422008b3d9fc");
-        dailyUsage4.setMdn("1234567890");
+        dailyUsage4.setMdn(MDN);
         dailyUsage4.setUsageDate(currentDate + 90000000);
         dailyUsage4.setUsedInMb(400);
         dailyUsageRepository.save(dailyUsage4);
 
         //Fetch data usage for the past and next 48 hours
         List<DailyUsage> dailyUsageList = dailyUsageRepository
-                .findByUserIdAndMdnAndUsageDateBetweenOrderByUsageDateDesc("6671d6cdd518422008b3d9fb",
-                        "1234567890", System.currentTimeMillis() - 172800000,
+                .findByUserIdAndMdnAndUsageDateBetweenOrderByUsageDateDesc(USER_ID,
+                        MDN, System.currentTimeMillis() - 172800000,
                         System.currentTimeMillis() + 172800000, sort);
 
         Assertions.assertFalse(dailyUsageList.isEmpty());
@@ -166,23 +169,23 @@ public class DailyUsageRepositoryTest {
         //Current Day Data Usage
         Long currentDate = System.currentTimeMillis();
         DailyUsage dailyUsage1 = new DailyUsage();
-        dailyUsage1.setUserId("6671d6cdd518422008b3d9fb");
-        dailyUsage1.setMdn("1234567890");
+        dailyUsage1.setUserId(USER_ID);
+        dailyUsage1.setMdn(MDN);
         dailyUsage1.setUsageDate(currentDate);
         dailyUsage1.setUsedInMb(100);
         dailyUsageRepository.save(dailyUsage1);
 
         //Previous Day Data Usage
         DailyUsage dailyUsage2 = new DailyUsage();
-        dailyUsage2.setUserId("6671d6cdd518422008b3d9fb");
-        dailyUsage2.setMdn("1234567890");
+        dailyUsage2.setUserId(USER_ID);
+        dailyUsage2.setMdn(MDN);
         dailyUsage2.setUsageDate(currentDate - 86400000);
         dailyUsage2.setUsedInMb(200);
         dailyUsageRepository.save(dailyUsage2);
 
         //Current Day Data Usage
         DailyUsage dailyUsage3 = new DailyUsage();
-        dailyUsage3.setUserId("6671d6cdd518422008b3d9fb");
+        dailyUsage3.setUserId(USER_ID);
         dailyUsage3.setMdn("1234567891");
         dailyUsage3.setUsageDate(currentDate);
         dailyUsage3.setUsedInMb(300);
@@ -190,8 +193,8 @@ public class DailyUsageRepositoryTest {
 
         //Fetch data usage for the past and next 48 hours
         List<DailyUsage> dailyUsageList = dailyUsageRepository
-                .findByUserIdAndMdnAndUsageDateBetweenOrderByUsageDateDesc("6671d6cdd518422008b3d9fb",
-                        "1234567890", System.currentTimeMillis() - 172800000,
+                .findByUserIdAndMdnAndUsageDateBetweenOrderByUsageDateDesc(USER_ID,
+                        MDN, System.currentTimeMillis() - 172800000,
                         System.currentTimeMillis() + 172800000, sort);
 
         Assertions.assertFalse(dailyUsageList.isEmpty());
@@ -207,16 +210,16 @@ public class DailyUsageRepositoryTest {
         //Current Day Data Usage
         Long currentDate = System.currentTimeMillis();
         DailyUsage dailyUsage1 = new DailyUsage();
-        dailyUsage1.setUserId("6671d6cdd518422008b3d9fb");
-        dailyUsage1.setMdn("1234567890");
+        dailyUsage1.setUserId(USER_ID);
+        dailyUsage1.setMdn(MDN);
         dailyUsage1.setUsageDate(currentDate);
         dailyUsage1.setUsedInMb(100);
         dailyUsageRepository.save(dailyUsage1);
 
         //Previous Day Data Usage
         DailyUsage dailyUsage2 = new DailyUsage();
-        dailyUsage2.setUserId("6671d6cdd518422008b3d9fb");
-        dailyUsage2.setMdn("1234567890");
+        dailyUsage2.setUserId(USER_ID);
+        dailyUsage2.setMdn(MDN);
         dailyUsage2.setUsageDate(currentDate - 86400000);
         dailyUsage2.setUsedInMb(200);
         dailyUsageRepository.save(dailyUsage2);
@@ -224,7 +227,7 @@ public class DailyUsageRepositoryTest {
         //Different User Data Usage
         DailyUsage dailyUsage3 = new DailyUsage();
         dailyUsage3.setUserId("6671d6cdd518422008b3d9fc");
-        dailyUsage3.setMdn("1234567890");
+        dailyUsage3.setMdn(MDN);
         dailyUsage3.setUsageDate(currentDate);
         dailyUsage3.setUsedInMb(300);
         dailyUsageRepository.save(dailyUsage3);
@@ -239,8 +242,8 @@ public class DailyUsageRepositoryTest {
 
         //Fetch data usage for the past and next 48 hours
         List<DailyUsage> dailyUsageList = dailyUsageRepository
-                .findByUserIdAndMdnAndUsageDateBetweenOrderByUsageDateDesc("6671d6cdd518422008b3d9fb",
-                        "1234567890",System.currentTimeMillis() - 172800000,
+                .findByUserIdAndMdnAndUsageDateBetweenOrderByUsageDateDesc(USER_ID,
+                        MDN,System.currentTimeMillis() - 172800000,
                         System.currentTimeMillis() + 172800000, sort);
 
         Assertions.assertFalse(dailyUsageList.isEmpty());
@@ -255,16 +258,16 @@ public class DailyUsageRepositoryTest {
     void testDailyUsageRepository_WithDataUsageOnStartDate() {
         Long currentDate = System.currentTimeMillis();
         DailyUsage dailyUsage = new DailyUsage();
-        dailyUsage.setUserId("6671d6cdd518422008b3d9fb");
-        dailyUsage.setMdn("1234567890");
+        dailyUsage.setUserId(USER_ID);
+        dailyUsage.setMdn(MDN);
         dailyUsage.setUsageDate(currentDate);
         dailyUsage.setUsedInMb(100);
         dailyUsageRepository.save(dailyUsage);
 
         //Fetch data usage for the past and next 24 hours
         List<DailyUsage> dailyUsageList = dailyUsageRepository
-                .findByUserIdAndMdnAndUsageDateBetweenOrderByUsageDateDesc("6671d6cdd518422008b3d9fb",
-                        "1234567890", currentDate, currentDate + 86400000, sort);
+                .findByUserIdAndMdnAndUsageDateBetweenOrderByUsageDateDesc(USER_ID,
+                        MDN, currentDate, currentDate + 86400000, sort);
 
         Assertions.assertFalse(dailyUsageList.isEmpty());
         Assertions.assertEquals(1, dailyUsageList.size());
@@ -276,16 +279,16 @@ public class DailyUsageRepositoryTest {
     void testDailyUsageRepository_WithDataUsageOnEndDate() {
         Long currentDate = System.currentTimeMillis();
         DailyUsage dailyUsage = new DailyUsage();
-        dailyUsage.setUserId("6671d6cdd518422008b3d9fb");
-        dailyUsage.setMdn("1234567890");
+        dailyUsage.setUserId(USER_ID);
+        dailyUsage.setMdn(MDN);
         dailyUsage.setUsageDate(currentDate);
         dailyUsage.setUsedInMb(100);
         dailyUsageRepository.save(dailyUsage);
 
         //Fetch data usage for the past and next 24 hours
         List<DailyUsage> dailyUsageList = dailyUsageRepository
-                .findByUserIdAndMdnAndUsageDateBetweenOrderByUsageDateDesc("6671d6cdd518422008b3d9fb",
-                        "1234567890", currentDate - 86400000, currentDate, sort);
+                .findByUserIdAndMdnAndUsageDateBetweenOrderByUsageDateDesc(USER_ID,
+                        MDN, currentDate - 86400000, currentDate, sort);
 
         Assertions.assertFalse(dailyUsageList.isEmpty());
         Assertions.assertEquals(1, dailyUsageList.size());

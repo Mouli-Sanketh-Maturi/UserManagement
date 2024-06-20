@@ -30,6 +30,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc(addFilters = false)
 public class UserControllerTest {
 
+    private static final String USER_ID = "6671d6cdd518422008b3d9fb";
+
     @Autowired
     MockMvc mockMvc;
 
@@ -49,14 +51,14 @@ public class UserControllerTest {
     @Test
     void createUser_Success() throws Exception {
         Mockito.when(userService.createUser(Mockito.any(CreateUserRequest.class))).
-                thenReturn(new UserResponse("6671d6cdd518422008b3d9fb",
+                thenReturn(new UserResponse(USER_ID,
                         "John", "Doe", "john.doe@gmail.com"));
         mockMvc.perform(post(userPath)
                 .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(getCreateUserRequest()))
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.id").value("6671d6cdd518422008b3d9fb"))
+                .andExpect(jsonPath("$.id").value(USER_ID))
                 .andExpect(jsonPath("$.firstName").value("John"))
                 .andExpect(jsonPath("$.lastName").value("Doe"))
                 .andExpect(jsonPath("$.email").value("john.doe@gmail.com"));
@@ -65,7 +67,7 @@ public class UserControllerTest {
     @Test
     void createUser_MissingFirstName() throws Exception {
         Mockito.when(userService.createUser(Mockito.any(CreateUserRequest.class))).
-                thenReturn(new UserResponse("6671d6cdd518422008b3d9fb",
+                thenReturn(new UserResponse(USER_ID,
                         null, "Doe", "john.doe@gmail.com"));
         CreateUserRequest createUserRequest = new CreateUserRequest(
                 null, "Doe", "john.doe@gmail.com", "password");
@@ -81,7 +83,7 @@ public class UserControllerTest {
     @Test
     void createUser_MissingLastName() throws Exception {
         Mockito.when(userService.createUser(Mockito.any(CreateUserRequest.class))).
-                thenReturn(new UserResponse("6671d6cdd518422008b3d9fb",
+                thenReturn(new UserResponse(USER_ID,
                         "John", null, "john.doe@gmail.com"));
         CreateUserRequest createUserRequest = new CreateUserRequest(
                 "John", null, "john.doe@gmail.com", "password");
@@ -97,7 +99,7 @@ public class UserControllerTest {
     @Test
     void createUser_MissingEmail() throws Exception {
         Mockito.when(userService.createUser(Mockito.any(CreateUserRequest.class))).
-                thenReturn(new UserResponse("6671d6cdd518422008b3d9fb",
+                thenReturn(new UserResponse(USER_ID,
                         "John", "Doe", null));
         CreateUserRequest createUserRequest = new CreateUserRequest(
                 "John", "Doe", null, "password");
@@ -113,7 +115,7 @@ public class UserControllerTest {
     @Test
     void createUser_InvalidEmail() throws Exception {
         Mockito.when(userService.createUser(Mockito.any(CreateUserRequest.class))).
-                thenReturn(new UserResponse("6671d6cdd518422008b3d9fb",
+                thenReturn(new UserResponse(USER_ID,
                         "John", "Doe", "john.doe"));
         CreateUserRequest createUserRequest = new CreateUserRequest(
                 "John", "Doe", "john.doe", "password");
@@ -129,7 +131,7 @@ public class UserControllerTest {
     @Test
     void createUser_MissingPassword() throws Exception {
         Mockito.when(userService.createUser(Mockito.any(CreateUserRequest.class))).
-                thenReturn(new UserResponse("6671d6cdd518422008b3d9fb",
+                thenReturn(new UserResponse(USER_ID,
                         "John", "Doe", "john.doe@gmail.com"));
         CreateUserRequest createUserRequest = new CreateUserRequest(
                 "John", "Doe", "john.doe@gmail.com", null);
@@ -145,7 +147,7 @@ public class UserControllerTest {
     @Test
     void createUser_PasswordLengthLessThan8() throws Exception {
         Mockito.when(userService.createUser(Mockito.any(CreateUserRequest.class))).
-                thenReturn(new UserResponse("6671d6cdd518422008b3d9fb",
+                thenReturn(new UserResponse(USER_ID,
                         "John", "Doe", "john.doe@gmail.com"));
         CreateUserRequest createUserRequest = new CreateUserRequest(
                 "John", "Doe", "john.doe@gmail.com", "pass");
@@ -161,7 +163,7 @@ public class UserControllerTest {
     @Test
     void createUser_EmailAlreadyExists() throws Exception {
         Mockito.when(userService.createUser(Mockito.any(CreateUserRequest.class))).
-                thenReturn(new UserResponse("6671d6cdd518422008b3d9fb",
+                thenReturn(new UserResponse(USER_ID,
                         "John", "Doe", "john.doe@gmail.com"));
         CreateUserRequest createUserRequest = new CreateUserRequest(
                 "John", "Doe", "john.doe@gmail.com", "password");
@@ -197,14 +199,14 @@ public class UserControllerTest {
 
     @Test
     void updateUser_Success() throws Exception {
-        Mockito.when(userService.updateUser(Mockito.any())).thenReturn(new UserResponse("6671d6cdd518422008b3d9fb",
+        Mockito.when(userService.updateUser(Mockito.any())).thenReturn(new UserResponse(USER_ID,
                 "Jane", "Porter", "jane.porter@gmail.com"));
         mockMvc.perform(put(userPath)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(getUpdateUserRequest()))
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value("6671d6cdd518422008b3d9fb"))
+                .andExpect(jsonPath("$.id").value(USER_ID))
                 .andExpect(jsonPath("$.firstName").value("Jane"))
                 .andExpect(jsonPath("$.lastName").value("Porter"))
                 .andExpect(jsonPath("$.email").value("jane.porter@gmail.com"));
@@ -212,7 +214,7 @@ public class UserControllerTest {
 
     @Test
     void updateUser_MissingUserId() throws Exception {
-        Mockito.when(userService.updateUser(Mockito.any())).thenReturn(new UserResponse("6671d6cdd518422008b3d9fb",
+        Mockito.when(userService.updateUser(Mockito.any())).thenReturn(new UserResponse(USER_ID,
                 "Jane", "Porter", "jane.porter@gmail.com"));
         UpdateUserRequest updateUserRequest = new UpdateUserRequest(
                 null, "Jane", "Porter", "jane.porter@gmail.com");
@@ -227,10 +229,10 @@ public class UserControllerTest {
 
     @Test
     void updateUser_MissingFirstName() throws Exception {
-        Mockito.when(userService.updateUser(Mockito.any())).thenReturn(new UserResponse("6671d6cdd518422008b3d9fb",
+        Mockito.when(userService.updateUser(Mockito.any())).thenReturn(new UserResponse(USER_ID,
                 null, "Porter", "jane.porter@gmail.com"));
         UpdateUserRequest updateUserRequest = new UpdateUserRequest(
-                "6671d6cdd518422008b3d9fb", null, "Porter", "jane.porter@gmail.com");
+                USER_ID, null, "Porter", "jane.porter@gmail.com");
         mockMvc.perform(put(userPath)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(updateUserRequest))
@@ -242,10 +244,10 @@ public class UserControllerTest {
 
     @Test
     void updateUser_MissingLastName() throws Exception {
-        Mockito.when(userService.updateUser(Mockito.any())).thenReturn(new UserResponse("6671d6cdd518422008b3d9fb",
+        Mockito.when(userService.updateUser(Mockito.any())).thenReturn(new UserResponse(USER_ID,
                 "Jane", null, "jane.porter@gmail.com"));
         UpdateUserRequest updateUserRequest = new UpdateUserRequest(
-                "6671d6cdd518422008b3d9fb", "Jane", null, "jane.porter@gmail.com");
+                USER_ID, "Jane", null, "jane.porter@gmail.com");
         mockMvc.perform(put(userPath)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(updateUserRequest))
@@ -257,10 +259,10 @@ public class UserControllerTest {
 
     @Test
     void updateUser_MissingEmail() throws Exception {
-        Mockito.when(userService.updateUser(Mockito.any())).thenReturn(new UserResponse("6671d6cdd518422008b3d9fb",
+        Mockito.when(userService.updateUser(Mockito.any())).thenReturn(new UserResponse(USER_ID,
                 "Jane", "Porter", null));
         UpdateUserRequest updateUserRequest = new UpdateUserRequest(
-                "6671d6cdd518422008b3d9fb", "Jane", "Porter", null);
+                USER_ID, "Jane", "Porter", null);
         mockMvc.perform(put(userPath)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(updateUserRequest))
@@ -272,10 +274,10 @@ public class UserControllerTest {
 
     @Test
     void updateUser_InvalidEmail() throws Exception {
-        Mockito.when(userService.updateUser(Mockito.any())).thenReturn(new UserResponse("6671d6cdd518422008b3d9fb",
+        Mockito.when(userService.updateUser(Mockito.any())).thenReturn(new UserResponse(USER_ID,
                 "Jane", "Porter", "jane.porter"));
         UpdateUserRequest updateUserRequest = new UpdateUserRequest(
-                "6671d6cdd518422008b3d9fb", "Jane", "Porter", "jane.porter");
+                USER_ID, "Jane", "Porter", "jane.porter");
         mockMvc.perform(put(userPath)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(updateUserRequest))
@@ -319,10 +321,10 @@ public class UserControllerTest {
 
     @Test
     void updateUser_EmailAlreadyExists() throws Exception {
-        Mockito.when(userService.updateUser(Mockito.any())).thenReturn(new UserResponse("6671d6cdd518422008b3d9fb",
+        Mockito.when(userService.updateUser(Mockito.any())).thenReturn(new UserResponse(USER_ID,
                 "Jane", "Porter", "jane.porter@gmail.com"));
         UpdateUserRequest updateUserRequest = new UpdateUserRequest(
-                "6671d6cdd518422008b3d9fb", "Jane", "Porter", "jane.porter@gmail.com");
+                USER_ID, "Jane", "Porter", "jane.porter@gmail.com");
         Mockito.when(userService.updateUser(updateUserRequest)).thenThrow(
                 new UserAlreadyExistsException("User with email jane.porter@gmail.com already exists"));
         mockMvc.perform(put(userPath)
@@ -339,7 +341,7 @@ public class UserControllerTest {
     }
 
     private UpdateUserRequest getUpdateUserRequest() {
-            return new UpdateUserRequest("6671d6cdd518422008b3d9fb", "Jane", "Porter",
+            return new UpdateUserRequest(USER_ID, "Jane", "Porter",
                     "jane.porter@gmail.com");
     }
 

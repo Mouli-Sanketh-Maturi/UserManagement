@@ -37,6 +37,8 @@ public class CycleTest {
     private static final String CURRENT_CYCLE_REPORT_API = "/api/v1/current-cycle-report";
     private static final String USER_ID = "6671d6cdd518422008b3d9fb";
     private static final String MDN = "1234567890";
+    private static final String USER_ID_KEY = "userId";
+    private static final String MDN_KEY = "mdn";
 
     @Autowired
     private CycleRepository cycleRepository;
@@ -84,8 +86,8 @@ public class CycleTest {
 
         // Test get cycle history
         mockMvc.perform(get(CYCLE_HISTORY_API)
-                .param("userId", USER_ID)
-                .param("mdn", MDN))
+                .param(USER_ID_KEY, USER_ID)
+                .param(MDN_KEY, MDN))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(2)))
                 .andExpect(jsonPath("$[0].startDate").value(formatEpochToUTC(cycle1.getStartDate())))
@@ -117,8 +119,8 @@ public class CycleTest {
 
             // Test get cycle history
             mockMvc.perform(get(CYCLE_HISTORY_API)
-                    .param("userId", USER_ID)
-                    .param("mdn", MDN))
+                    .param(USER_ID_KEY, USER_ID)
+                    .param(MDN_KEY, MDN))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$", hasSize(1)))
                     .andExpect(jsonPath("$[0].startDate").value(formatEpochToUTC(cycle1.getStartDate())))
@@ -148,8 +150,8 @@ public class CycleTest {
 
         // Test get cycle history
         mockMvc.perform(get(CYCLE_HISTORY_API)
-                .param("userId", USER_ID)
-                .param("mdn", MDN))
+                .param(USER_ID_KEY, USER_ID)
+                .param(MDN_KEY, MDN))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(1)))
                 .andExpect(jsonPath("$[0].startDate").value(formatEpochToUTC(cycle1.getStartDate())))
@@ -179,8 +181,8 @@ public class CycleTest {
 
         // Test get cycle history
         mockMvc.perform(get(CYCLE_HISTORY_API)
-                .param("userId", USER_ID)
-                .param("mdn", MDN))
+                .param(USER_ID_KEY, USER_ID)
+                .param(MDN_KEY, MDN))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(1)))
                 .andExpect(jsonPath("$[0].startDate").value(formatEpochToUTC(cycle1.getStartDate())))
@@ -191,8 +193,8 @@ public class CycleTest {
     void testGetCycleHistory_NoCycleFound() throws Exception {
         // Test get cycle history when no cycle found
         mockMvc.perform(get(CYCLE_HISTORY_API)
-                .param("userId", USER_ID)
-                .param("mdn", MDN))
+                .param(USER_ID_KEY, USER_ID)
+                .param(MDN_KEY, MDN))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.status").value(404))
                 .andExpect(jsonPath("$.title").value("Not Found"))
@@ -204,7 +206,7 @@ public class CycleTest {
     void testGetCycleHistory_UserIdMissing() throws Exception {
         // Test get cycle history with missing user id
         mockMvc.perform(get(CYCLE_HISTORY_API)
-                .param("mdn", MDN))
+                .param(MDN_KEY, MDN))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.status").value(400))
                 .andExpect(jsonPath("$.title").value("Bad Request"))
@@ -215,7 +217,7 @@ public class CycleTest {
     void testGetCycleHistory_MdnMissing() throws Exception {
         // Test get cycle history with missing mdn
         mockMvc.perform(get(CYCLE_HISTORY_API)
-                .param("userId", USER_ID))
+                .param(USER_ID_KEY, USER_ID))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.status").value(400))
                 .andExpect(jsonPath("$.title").value("Bad Request"))
@@ -226,8 +228,8 @@ public class CycleTest {
     void testGetCycleHistory_InvalidUserIdAndMdn() throws Exception {
         // Test get cycle history with invalid input
         mockMvc.perform(get(CYCLE_HISTORY_API)
-                .param("userId", "")
-                .param("mdn", ""))
+                .param(USER_ID_KEY, "")
+                .param(MDN_KEY, ""))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.status").value(400))
                 .andExpect(jsonPath("$.title").value("Bad Request"));
@@ -268,8 +270,8 @@ public class CycleTest {
 
         // Test get current cycle report
         mockMvc.perform(get(CURRENT_CYCLE_REPORT_API)
-                .param("userId", USER_ID)
-                .param("mdn", MDN))
+                .param(USER_ID_KEY, USER_ID)
+                .param(MDN_KEY, MDN))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(2)))
                 .andExpect(jsonPath("$[0].date").value(formatEpochToUTC(dailyUsage1.getUsageDate())))
@@ -292,8 +294,8 @@ public class CycleTest {
         cycleRepository.save(cycle);
 
         mockMvc.perform(get(CURRENT_CYCLE_REPORT_API)
-                .param("userId", USER_ID)
-                .param("mdn", MDN))
+                .param(USER_ID_KEY, USER_ID)
+                .param(MDN_KEY, MDN))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(0)));
     }
@@ -302,8 +304,8 @@ public class CycleTest {
     void testGetCurrentCycleReport_NoCycleFound() throws Exception {
         // Test get current cycle report when no cycle found
         mockMvc.perform(get(CURRENT_CYCLE_REPORT_API)
-                .param("userId", USER_ID)
-                .param("mdn", MDN))
+                .param(USER_ID_KEY, USER_ID)
+                .param(MDN_KEY, MDN))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.status").value(404))
                 .andExpect(jsonPath("$.title").value("Not Found"))
@@ -315,7 +317,7 @@ public class CycleTest {
     void testGetCurrentCycleReport_UserIdMissing() throws Exception {
         // Test get current cycle report with missing user id
         mockMvc.perform(get(CURRENT_CYCLE_REPORT_API)
-                .param("mdn", MDN))
+                .param(MDN_KEY, MDN))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.status").value(400))
                 .andExpect(jsonPath("$.title").value("Bad Request"))
@@ -326,7 +328,7 @@ public class CycleTest {
     void testGetCurrentCycleReport_MdnMissing() throws Exception {
         // Test get current cycle report with missing mdn
         mockMvc.perform(get(CURRENT_CYCLE_REPORT_API)
-                .param("userId", USER_ID))
+                .param(USER_ID_KEY, USER_ID))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.status").value(400))
                 .andExpect(jsonPath("$.title").value("Bad Request"))
@@ -337,8 +339,8 @@ public class CycleTest {
     void testGetCurrentCycleReport_InvalidUserIdAndMdn() throws Exception {
         // Test get current cycle report with invalid input
         mockMvc.perform(get(CURRENT_CYCLE_REPORT_API)
-                .param("userId", "")
-                .param("mdn", ""))
+                .param(USER_ID_KEY, "")
+                .param(MDN_KEY, ""))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.status").value(400))
                 .andExpect(jsonPath("$.title").value("Bad Request"));
@@ -377,8 +379,8 @@ public class CycleTest {
 
         // Test get current cycle report
         mockMvc.perform(get(CURRENT_CYCLE_REPORT_API)
-                .param("userId", USER_ID)
-                .param("mdn", MDN))
+                .param(USER_ID_KEY, USER_ID)
+                .param(MDN_KEY, MDN))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(1)))
                 .andExpect(jsonPath("$[0].dailyUsage").value(dailyUsage1.getUsedInMb()))
@@ -417,8 +419,8 @@ public class CycleTest {
 
         // Test get current cycle report
         mockMvc.perform(get(CURRENT_CYCLE_REPORT_API)
-                .param("userId", USER_ID)
-                .param("mdn", MDN))
+                .param(USER_ID_KEY, USER_ID)
+                .param(MDN_KEY, MDN))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(1)))
                 .andExpect(jsonPath("$[0].dailyUsage").value(dailyUsage1.getUsedInMb()))
@@ -457,8 +459,8 @@ public class CycleTest {
 
         // Test get current cycle report
         mockMvc.perform(get(CURRENT_CYCLE_REPORT_API)
-                .param("userId", USER_ID)
-                .param("mdn", MDN))
+                .param(USER_ID_KEY, USER_ID)
+                .param(MDN_KEY, MDN))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(1)))
                 .andExpect(jsonPath("$[0].dailyUsage").value(dailyUsage1.getUsedInMb()))
