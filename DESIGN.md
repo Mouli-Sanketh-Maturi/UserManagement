@@ -10,6 +10,14 @@ This document outlines the design decisions for the Spring Boot Java REST server
 
 - **Implementation**: APIs are designed to be idempotent where possible with clear HTTP status codes for easy client-side integration and error handling.
 
+### Error Handling
+
+- **Controller Advice**: Global exception handling using `@ControllerAdvice` to handle exceptions across all controllers. Provides a consistent error response format for all exceptions.
+
+### Current Architecture
+
+![img.png](assets/architecture.png)
+
 ## Database Design
 
 ### Schema Design

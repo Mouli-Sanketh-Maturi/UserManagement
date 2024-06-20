@@ -95,6 +95,10 @@ This loads up the Swagger UI, which provides a user-friendly interface to intera
 
 For detailed information on the API endpoints and schemas, see the [API Documentation](./DOCS.md) or refer to the Swagger UI.
 
+## Design Documentation
+
+For detailed information on the design choices, database schema, and scaling considerations, see the [Design Documentation](./DESIGN.md).
+
 # Testing Documentation
 
 ## Overview
