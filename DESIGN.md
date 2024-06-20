@@ -35,7 +35,7 @@ This document outlines the design decisions for the Spring Boot Java REST server
 
 ### Indexing Strategy
 - **Cycle Collection**: Compound Indexes on user Id and mdn for efficient querying. Adding indexes on start and end dates for range queries seems unnecessary given the data size of 10 cycles per user, but can be considered if the data size grows significantly or performance issues arise.
-- **User Collection**: Compound Index on user ID and mdn for quick user profile updates.
+- **User Collection**: Index on email for quick user profile checks.
 - **Daily Usage Collection**: Compound Index user Id, mdn and date for fast retrieval of daily usage data.
 
 If we compound index on (ABC) - it can be used for queries on A, AB, ABC but not on B or C. The queries are also written to ensure that we filter by A first, then AB, then ABC. This is to ensure that the indexes are used efficiently.
