@@ -114,4 +114,12 @@ To execute all tests, including both unit tests and data tests, run the followin
 
 The Mongodb for tests is autoconfigured, and comes up and down with the tests, so you don't need to worry about starting or stopping the MongoDB instance.
 
+# Future Improvements
 
+The current version of the application provides a solid foundation for managing user data and cycles. However, below are some areas that can be improved in future versions:
+- **Additional APIs**: Add more APIs to support updating passwords, POST cycle and data usage information(which are currently read-only), and more.
+- **Enhanced Security**: Implement additional security measures like SSL/TLS, authentication, and authorization mechanisms.
+- **Monitoring and Logging**: Integrate monitoring tools like Prometheus and Grafana for performance tracking and logging tools like ELK stack for log management.
+- **Caching**: Implement caching mechanisms to improve performance and reduce database load.
+- **Error Handling**: Enhance error handling to provide more detailed error messages and improve user experience.
+- **Performance Evaluation**: Conduct performance tests to identify bottlenecks and optimize the application for better scalability.
